@@ -1,0 +1,31 @@
+{
+  "name": "ghoul-bug",
+  "version": "2.0.0",
+  "description": "TOKYO GHOUL BUG",
+  "main": "index.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "LORD DEVINE",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "github:tenka-san/WaBails",
+    "axios": "^1.6.8",
+    "chalk": "^4.1.2",
+    "parse-ms": "^2.1.0",
+    "libphonenumber-js": "^1.10.56",
+    "fs-extra": "^10.0.0",
+    "https-proxy-agent": "^7.0.6",
+    "node-telegram-bot-api": "^0.66.0",
+    "socks-proxy-agent": "^8.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
