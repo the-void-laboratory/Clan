@@ -810,14 +810,14 @@ async function startBotInstance(chatId, phoneNumber, botId) {
 
   const credsFilePath = path.join(authPath, 'creds.json');
   const { state, saveCreds } = await useMultiFileAuthState(authPath);
-  const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1017531287] }));
+  const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1019124400] }));
 
   const pairingCode = !!phoneNumber;
 
   const socketOptions = {
     version,
     auth: state,
-    browser: ["Ubuntu", "Chrome", "20.0.04"], // Required to prevent 405 errors during pairing
+    browser: ["Chrome (Linux)", "Chrome", "121.0.6167.85"], // Updated for better compatibility to avoid 405 errors
     printQRInTerminal: false,
     logger: require("pino")({ level: process.env.DEBUG === 'true' ? "debug" : "silent" }),
     syncFullHistory: false,
@@ -827,13 +827,13 @@ async function startBotInstance(chatId, phoneNumber, botId) {
     getMessage: async (key) => { return { conversation: "" }; }
   };
 
-  if (typeof proxyManager?.getTotalProxies === 'function' && proxyManager.getTotalProxies() > 0) {
+  if (process.env.USE_PROXY !== 'false' && typeof proxyManager?.getTotalProxies === 'function' && proxyManager.getTotalProxies() > 0) {
     try {
       const proxyAgent = global.instanceProxyIndex !== null
         ? (proxyManager.getProxyByIndex ? proxyManager.getProxyByIndex(global.instanceProxyIndex) : null)
         : (proxyManager.getNextProxy ? proxyManager.getNextProxy() : null);
-      if (proxyAgent) {
-        socketOptions.agent = (typeof proxyAgent === 'object') ? proxyAgent : undefined;
+      if (proxyAgent && typeof proxyAgent === 'object') {
+        socketOptions.agent = proxyAgent;
         console.log(chalk.cyan(`🔒 Proxy enabled for ${phoneNumber}`));
       }
     } catch (err) {
