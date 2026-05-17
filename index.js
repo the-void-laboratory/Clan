@@ -810,7 +810,7 @@ async function startBotInstance(chatId, phoneNumber, botId) {
 
   const credsFilePath = path.join(authPath, 'creds.json');
   const { state, saveCreds } = await useMultiFileAuthState(authPath);
-  const version = [2, 3000, 1030831524];
+  const { version, isLatest } = await fetchLatestBaileysVersion();
   const pairingCode = !!phoneNumber;
 
   const socketOptions = {
@@ -939,7 +939,7 @@ async function startBotInstance(chatId, phoneNumber, botId) {
       if (!isLoggedOut) {
         if (Number(statusCode) === 515) console.log(chalk.yellow(`🔄 Stream error (515) for ${phoneNumber} — retrying...`));
         try { sock.ev.removeAllListeners(); sock.end(); } catch (e) {}
-        const reconnectDelay = Number(statusCode) === 515 ? 10000 : 3000;
+        const reconnectDelay = Number(statusCode) === 515 ? 15000 : 30000; // Increased delay to prevent spam
         setTimeout(async () => {
           activeBots.delete(botId);
           try { await startBotInstance(chatId, phoneNumber, botId); } catch (err) {
@@ -1016,7 +1016,7 @@ async function restoreExistingSessions() {
           if (!activeBots.has(botId)) {
             console.log(chalk.cyan(`🔄 Restoring session for ${phoneNumber} (${chatId})`));
             await startBotInstance(chatId, phoneNumber, botId);
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Longer delay between restorations
           }
         }
       } catch (err) {
