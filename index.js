@@ -810,12 +810,14 @@ async function startBotInstance(chatId, phoneNumber, botId) {
 
   const credsFilePath = path.join(authPath, 'creds.json');
   const { state, saveCreds } = await useMultiFileAuthState(authPath);
-  const { version, isLatest } = await fetchLatestBaileysVersion();
+  const { version } = await fetchLatestBaileysVersion().catch(() => ({ version: [2, 3000, 1017531287] }));
+
   const pairingCode = !!phoneNumber;
 
   const socketOptions = {
     version,
     auth: state,
+    browser: ["Ubuntu", "Chrome", "20.0.04"], // Required to prevent 405 errors during pairing
     printQRInTerminal: false,
     logger: require("pino")({ level: process.env.DEBUG === 'true' ? "debug" : "silent" }),
     syncFullHistory: false,
@@ -825,13 +827,13 @@ async function startBotInstance(chatId, phoneNumber, botId) {
     getMessage: async (key) => { return { conversation: "" }; }
   };
 
-  if (proxyManager.getTotalProxies() > 0) {
+  if (typeof proxyManager?.getTotalProxies === 'function' && proxyManager.getTotalProxies() > 0) {
     try {
       const proxyAgent = global.instanceProxyIndex !== null
-        ? proxyManager.getProxyByIndex(global.instanceProxyIndex)
-        : proxyManager.getNextProxy();
-      if (proxyAgent && typeof proxyAgent === 'object') {
-        socketOptions.agent = proxyAgent;
+        ? (proxyManager.getProxyByIndex ? proxyManager.getProxyByIndex(global.instanceProxyIndex) : null)
+        : (proxyManager.getNextProxy ? proxyManager.getNextProxy() : null);
+      if (proxyAgent) {
+        socketOptions.agent = (typeof proxyAgent === 'object') ? proxyAgent : undefined;
         console.log(chalk.cyan(`🔒 Proxy enabled for ${phoneNumber}`));
       }
     } catch (err) {
@@ -938,6 +940,14 @@ async function startBotInstance(chatId, phoneNumber, botId) {
 
       if (!isLoggedOut) {
         if (Number(statusCode) === 515) console.log(chalk.yellow(`🔄 Stream error (515) for ${phoneNumber} — retrying...`));
+        
+        // Stop reconnection loops for critical errors (405 Unsupported Client, 401 Unauthorized)
+        if (Number(statusCode) === 405 || Number(statusCode) === 401) {
+          console.log(chalk.red(`❌ Critical error ${statusCode} for ${phoneNumber}. Automatic restart disabled to prevent spam.`));
+          activeBots.delete(botId);
+          return;
+        }
+
         try { sock.ev.removeAllListeners(); sock.end(); } catch (e) {}
         const reconnectDelay = Number(statusCode) === 515 ? 15000 : 30000; // Increased delay to prevent spam
         setTimeout(async () => {
