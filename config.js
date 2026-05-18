@@ -16,7 +16,7 @@ export default {
   group: "@Xprimexxvi",
 
   // Thumbnail bot
-  thumb: "https://telegra.ph/file/xxx.jpg",
+  thumb: "",
 
   // Free premium config
   freePremiumDays: 3 
