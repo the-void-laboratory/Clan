@@ -1,5 +1,5 @@
 export default {
-  botToken: "8763964153:AAHy_ZQHoLnxW-zhXzigorSdhKjlkLGMZtQ", 
+  botToken: "8763964153:AAGwimcrj6jQbtAWaPANtmEoNNHgM30_J3k", 
 
   // API token
   githubToken: "ghp_xxxxxxxxx", 
