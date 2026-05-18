@@ -3,7 +3,7 @@ export default {
 
   // API token
   githubToken: "ghp_xxxxxxxxx", 
-  githubUsername: "Ganzs919",<
+  githubUsername: "Ganzs919",
 
   vercelToken: "vercel_xxxxxxxxx",
   netlifyToken: "netlify_xxxxxxxxx",
