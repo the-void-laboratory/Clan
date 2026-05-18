@@ -16,7 +16,7 @@ export default {
   group: "@Xprimexxvi",
 
   // Thumbnail bot
-  thumb: "",
+  thumb: "https://unsplash.com/photos/living-room-with-green-sofa-and-carousel-art-8FELip6osY0",
 
   // Free premium config
   freePremiumDays: 3 
