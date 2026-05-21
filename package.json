@@ -1,15 +1,17 @@
 {
-  "name": "deploy-bot",
-  "version": "1.0.0",
+  "name": "infection-bug-v9",
+  "version": "9.0.0",
+  "description": "Advanced Hacking Bot with Force Join",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^1.6.0",
-    "form-data": "^4.0.0",
-    "node-telegram-bot-api": "^0.61.0",
-    "fs-extra": "^11.1.1"
-  }
+    "telegraf": "^4.15.3",
+    "dotenv": "^16.3.1",
+    "fs": "^0.0.1-security"
+  },
+  "keywords": ["telegram", "bot", "hacking", "security"],
+  "author": "Lord Satanus",
+  "license": "MIT"
 }
