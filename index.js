@@ -226,7 +226,7 @@ bot.command('menu', async (ctx) => {
   const keyboard = Markup.inlineKeyboard([
     [Markup.button.callback('🔮 SHOW MENU', 'show_menu')]
   ]);
-  await ctx.reply('🔮 *C̸l̸i̸c̸k̸ ̸t̸o̸ ̸u̸n̸l̸o̸c̸k̸ ̸t̸h̸e̸ ̸d̸a̸r̸k̸ ̸m̸e̸n̸u̸* 🔮', { parse_mode: 'Markdown', ...keyboard });
+  await ctx.reply('🔮 C̸l̸i̸c̸k̸ ̸t̸o̸ ̸u̸n̸l̸o̸c̸k̸ ̸t̸h̸e̸ ̸d̸a̸r̸k̸ ̸m̸e̸n̸u̸ 🔮', keyboard);
 });
 
 // ================= START COMMAND - FANCY HACKER STYLE =================
@@ -266,9 +266,9 @@ bot.start(async (ctx) => {
 └─────────────────────────────────────┘`;
 
   try {
-    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown', ...keyboard });
+    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, ...keyboard });
   } catch (error) {
-    await ctx.reply(welcomeMsg, { parse_mode: 'Markdown', ...keyboard });
+    await ctx.reply(welcomeMsg, keyboard);
   }
 });
 
@@ -339,7 +339,7 @@ bot.action('show_menu', async (ctx) => {
     [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
   ]);
 
-  await ctx.reply(menuText, { parse_mode: 'Markdown', ...menuKeyboard });
+  await ctx.reply(menuText, menuKeyboard);
 });
 
 // ================= PREMIUM CHECK - FANCY STYLE =================
@@ -425,6 +425,11 @@ bot.command('allusers', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
   if (allUsers.size === 0) return ctx.reply('📭 *N̸o̸ ̸u̸s̸e̸r̸s̸*', { parse_mode: 'Markdown' });
   ctx.reply(`👥 *A̸l̸l̸ ̸U̸s̸e̸r̸s̸:*\n${[...allUsers].join('\n')}`, { parse_mode: 'Markdown' });
+});
+
+// ================= GLOBAL ERROR HANDLING =================
+bot.catch((err, ctx) => {
+  console.error('Unhandled error while processing', ctx.update, err);
 });
 
 // ================= LAUNCH =================
