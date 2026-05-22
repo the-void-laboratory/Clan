@@ -8,10 +8,10 @@ const OWNER_ID = parseInt(process.env.OWNER_ID);
 const SECOND_ADMIN_ID = parseInt(process.env.SECOND_ADMIN_ID);
 const LOG_GROUP_ID = process.env.LOG_GROUP_ID;
 const CHANNEL_LINK = process.env.CHANNEL_LINK;
-const OWNER_USERNAME = process.env.OWNER_USERNAME;
+const OWNER_USERNAME = process.env.OWNER_USERNAME || '@owner';
 const START_IMAGE = process.env.START_IMAGE;
-const BOT_NAME = process.env.BOT_NAME;
-const PREMIUM_BOT = process.env.PREMIUM_BOT;
+const BOT_NAME = process.env.BOT_NAME || 'Bot';
+const PREMIUM_BOT = process.env.PREMIUM_BOT || '@premium_bot';
 
 // ================= ALL COMMUNITY BUTTONS =================
 const COMMUNITY_BUTTONS = [
@@ -113,7 +113,7 @@ async function hackerProgress(ctx, messageId, toolName, target) {
     await new Promise(r => setTimeout(r, 300));
     try {
       await bot.telegram.editMessageText(ctx.chat.id, messageId, null,
-        `⚡ *[ ${toolName} ]*\n🎯 Target: \`${target}\`\n⏳ Status: *${step}*`, { parse_mode: 'Markdown' });
+        `┌─[ ${toolName} ]─┐\n├─ 🎯 ${target}\n├─ ⚡ ${step}\n└─────────────┘`);
     } catch(e) {}
   }
 }
@@ -166,27 +166,30 @@ function getHackedUsername() {
   return hackedUsernames[Math.floor(Math.random() * hackedUsernames.length)];
 }
 
-// ================= REPLIES GENERATOR =================
+// ================= SIMPLE REPLY (for bugs and other commands) =================
 function simpleReply(command, target) {
   const time = new Date().toLocaleString();
   const commandName = command.replace('/', '').toUpperCase();
-  return `✅ *MISSION ACCOMPLISHED!*\n\n🎯 *TARGET:* \`${target}\`\n💀 *EXECUTION:* \`${commandName} INJECTED\`\n🕒 *TIMESTAMP:* \`${time}\``;
+  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n💀 ${commandName} EXECUTED\n🕒 ${time}`;
 }
 
+// ================= SOCIAL HACK REPLY (with password) =================
 function socialHackReply(command, target) {
   const time = new Date().toLocaleString();
   const hackedUser = getHackedUsername();
   const mixedPass = generateMixedPassword();
   const commandName = command.replace('/', '').toUpperCase();
-  return `✅ *ACCOUNT EXPLOITED!*\n\n🎯 *TARGET:* \`${target}\`\n🔓 *USERNAME:* \`${hackedUser}\`\n🔑 *PASSWORD:* \`${mixedPass}\`\n💀 *STATUS:* \`${commandName} BYPASSED\`\n🕒 *TIMESTAMP:* \`${time}\``;
+  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n🔓 HACKED USER: ${hackedUser}\n🔑 PASSWORD: ${mixedPass}\n💀 ${commandName} HACKED\n🕒 ${time}`;
 }
 
+// ================= IP TRACK REPLY (with country location) =================
 function ipTrackReply(target) {
   const time = new Date().toLocaleString();
   const country = getCountryInfo(target);
-  return `✅ *TRACE COMPLETE!*\n\n🌐 *TARGET NUMBER:* \`${target}\`\n📍 *LOCATION:* ${country.flag} ${country.name}\n🏛️ *STATE:* \`${country.state}\`\n🏙️ *CITY:* \`${country.city}\`\n🏠 *STREET:* \`${country.street}\`\n📡 *CARRIER:* \`${['MTN', 'GLO', 'Airtel', 'Vodafone', 'Verizon', 'T-Mobile', 'Orange', 'Deutsche Telekom'][Math.floor(Math.random()*8)]}\`\n📱 *DEVICE:* \`${['iPhone', 'Samsung', 'Tecno', 'Infinix', 'Google Pixel', 'OnePlus', 'Xiaomi', 'Huawei'][Math.floor(Math.random()*8)]}\`\n🕒 *TIMESTAMP:* \`${time}\``;
+  return `✅ MISSION ACCOMPLISHED!\n🌐 TARGET NUMBER: ${target}\n📍 COUNTRY: ${country.flag} ${country.name}\n🏛️ STATE: ${country.state}\n🏙️ CITY: ${country.city}\n🏠 STREET: ${country.street}\n📡 CARRIER: ${['MTN', 'GLO', 'Airtel', 'Vodafone', 'Verizon', 'T-Mobile', 'Orange', 'Deutsche Telekom'][Math.floor(Math.random()*8)]}\n📱 DEVICE: ${['iPhone', 'Samsung', 'Tecno', 'Infinix', 'Google Pixel', 'OnePlus', 'Xiaomi', 'Huawei'][Math.floor(Math.random()*8)]}\n🕒 ${time}`;
 }
 
+// ================= HACKER REPLIES =================
 function getHackerReply(command, target) {
   if (command === '/fb_hack' || command === '/tiktok_hack' || command === '/twitter_hack' || command === '/snap_hack') {
     return socialHackReply(command, target);
@@ -197,87 +200,107 @@ function getHackerReply(command, target) {
   return simpleReply(command, target);
 }
 
-// ================= EXECUTION STRATEGIES =================
+// ================= ADMIN EXECUTES INSTANTLY =================
 async function executeHackInstant(ctx, command, toolName) {
   const userId = ctx.from.id;
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`⚠️ *USAGE ERROR*\nFormat: \`${command} <target>\`\nExample: \`${command} 08012345678\``, { parse_mode: 'Markdown' });
+    return ctx.reply(`⚠️ USAGE: ${command} <target>\nExample: ${command} 08012345678`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   await logToGroup(`⚡ ADMIN | ${toolName} | BY: ${userId} | TARGET: ${targetValue}`);
-  
-  const progressMsg = await ctx.reply(`💀 *${toolName} INITIALIZED*\n🎯 Target: \`${targetValue}\`\n⏳ Progress: *◐ 0%*`, { parse_mode: 'Markdown' });
+  const progressMsg = await ctx.reply(`💀 ${toolName}\n🎯 ${targetValue}\n◐ 0%`);
   await hackerProgress(ctx, progressMsg.message_id, toolName, targetValue);
-  await ctx.reply(getHackerReply(command, targetValue), { parse_mode: 'Markdown' });
+  await ctx.reply(getHackerReply(command, targetValue));
   await logToGroup(`✅ ADMIN DONE | ${toolName} | ${userId}`);
 }
 
+// ================= USER REQUEST APPROVAL =================
 async function requestApproval(ctx, command, toolName) {
   const userId = ctx.from.id;
   const username = ctx.from.username || 'Unknown';
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`⚠️ *USAGE ERROR*\nFormat: \`${command} <target>\``, { parse_mode: 'Markdown' });
+    return ctx.reply(`⚠️ USAGE: ${command} <target>`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   const requestId = `${userId}_${Date.now()}`;
   pendingRequests.set(requestId, { userId, username, command, toolName, target: targetValue, chatId: ctx.chat.id });
-  
-  await ctx.reply(`⏳ *REQUEST ROUTED TO ADMINS*\n🔧 Tool: \`${toolName}\`\n🎯 Target: \`${targetValue}\`\n👑 Status: *PENDING APPROVAL...*`, { parse_mode: 'Markdown' });
+  await ctx.reply(`⏳ REQUEST SENT TO ADMINS\n🔧 ${toolName}\n🎯 ${targetValue}\n👑 WAITING...`);
   const approveKeyboard = Markup.inlineKeyboard([
     [Markup.button.callback('✅ APPROVE', `approve_${requestId}`), Markup.button.callback('❌ REJECT', `reject_${requestId}`)]
   ]);
-  await bot.telegram.sendMessage(LOG_GROUP_ID, `⚠️ *NEW INJECTION REQUEST*\n👤 User: [${userId}](tg://user?id=${userId})\n🛠️ Tool: \`${toolName}\`\n🎯 Target: \`${targetValue}\``, { parse_mode: 'Markdown', ...approveKeyboard });
+  await bot.telegram.sendMessage(LOG_GROUP_ID, `⚠️ NEW REQUEST\n👤 ${userId}\n🛠️ ${toolName}\n🎯 ${targetValue}`, approveKeyboard);
 }
 
 // ================= APPROVAL CALLBACKS =================
 bot.action(/approve_(.+)/, async (ctx) => {
-  await ctx.answerCbQuery('✅ Approved');
-  const requestId = ctx.match[1];
-  if (!isAdmin(ctx.from.id)) return;
-  const request = pendingRequests.get(requestId);
-  if (!request) return;
-  await ctx.editMessageText(`✅ *APPROVED BY ADMIN* @${ctx.from.username}\n👤 User: \`${request.userId}\`\n🛠️ Tool: \`${request.toolName}\`\n🎯 Target: \`${request.target}\``, { parse_mode: 'Markdown' });
-  await bot.telegram.sendMessage(request.chatId, getHackerReply(request.command, request.target), { parse_mode: 'Markdown' });
-  pendingRequests.delete(requestId);
+  try {
+    await ctx.answerCbQuery('✅ Approved');
+    const requestId = ctx.match[1];
+    if (!isAdmin(ctx.from.id)) return;
+    const request = pendingRequests.get(requestId);
+    if (!request) return;
+    await ctx.editMessageText(`✅ APPROVED by @${ctx.from.username}\n👤 ${request.userId}\n🛠️ ${request.toolName}\n🎯 ${request.target}`);
+    await bot.telegram.sendMessage(request.chatId, getHackerReply(request.command, request.target));
+    pendingRequests.delete(requestId);
+  } catch (err) { console.error('Approve action error:', err.message); }
 });
 
 bot.action(/reject_(.+)/, async (ctx) => {
-  await ctx.answerCbQuery('❌ Rejected');
-  const requestId = ctx.match[1];
-  if (!isAdmin(ctx.from.id)) return;
-  const request = pendingRequests.get(requestId);
-  if (!request) return;
-  await ctx.editMessageText(`❌ *REJECTED BY ADMIN* @${ctx.from.username}\n👤 User: \`${request.userId}\`\n🛠️ Tool: \`${request.toolName}\``, { parse_mode: 'Markdown' });
-  await bot.telegram.sendMessage(request.chatId, `❌ *REQUEST DENIED*\n👑 Administrator interaction required.\nContact: ${OWNER_USERNAME}`, { parse_mode: 'Markdown' });
-  pendingRequests.delete(requestId);
+  try {
+    await ctx.answerCbQuery('❌ Rejected');
+    const requestId = ctx.match[1];
+    if (!isAdmin(ctx.from.id)) return;
+    const request = pendingRequests.get(requestId);
+    if (!request) return;
+    await ctx.editMessageText(`❌ REJECTED by @${ctx.from.username}\n👤 ${request.userId}\n🛠️ ${request.toolName}`);
+    await bot.telegram.sendMessage(request.chatId, `❌ REQUEST DENIED\n👑 ${OWNER_USERNAME}`);
+    pendingRequests.delete(requestId);
+  } catch (err) { console.error('Reject action error:', err.message); }
 });
 
 // ================= COMMAND HANDLER =================
 const handleCmd = async (ctx, cmd, tool) => {
-  if (isAdmin(ctx.from.id)) executeHackInstant(ctx, cmd, tool);
-  else if (isPremium(ctx.from.id)) requestApproval(ctx, cmd, tool);
-  else ctx.reply(`🔒 *ACCESS RESTRICTED*\n\n💎 Premium Key Required.\n📲 Upgrade via: ${PREMIUM_BOT}\n👑 Support: ${OWNER_USERNAME}`, { parse_mode: 'Markdown' });
+  try {
+    if (isAdmin(ctx.from.id)) {
+      await executeHackInstant(ctx, cmd, tool);
+    } else if (isPremium(ctx.from.id)) {
+      await requestApproval(ctx, cmd, tool);
+    } else {
+      // Switched to HTML parsing mode to natively support strings with underscores without crashing
+      const restictionMsg = `🔒 <b>ACCESS RESTRICTED</b>\n\n💎 Premium Key Required.\n📲 Upgrade via: ${PREMIUM_BOT}\n👑 Support: ${OWNER_USERNAME}`;
+      await ctx.reply(restictionMsg, { parse_mode: 'HTML' });
+    }
+  } catch (err) {
+    console.error(`Command execution error on ${cmd}:`, err.message);
+  }
 };
 
 // ================= REGISTER ALL COMMANDS =================
+// Virus Commands
 bot.command('droid_virus', (ctx) => handleCmd(ctx, '/droid_virus', 'DROID_VIRUS'));
 bot.command('ios_virus', (ctx) => handleCmd(ctx, '/ios_virus', 'IOS_VIRUS'));
 bot.command('linux_virus', (ctx) => handleCmd(ctx, '/linux_virus', 'LINUX_VIRUS'));
 bot.command('pc_kill', (ctx) => handleCmd(ctx, '/pc_kill', 'PC_KILLER'));
 bot.command('destroy', (ctx) => handleCmd(ctx, '/destroy', 'DESTROYER'));
+
+// Bug Commands
 bot.command('infect_ill', (ctx) => handleCmd(ctx, '/infect_ill', 'INFECT_ILL'));
 bot.command('triple_x', (ctx) => handleCmd(ctx, '/triple_x', 'TRIPLE_X'));
 bot.command('ovia_load', (ctx) => handleCmd(ctx, '/ovia_load', 'OVIA_LOAD'));
 bot.command('hate_you', (ctx) => handleCmd(ctx, '/hate_you', 'HATE_YOU'));
 bot.command('mini_kill', (ctx) => handleCmd(ctx, '/mini_kill', 'MINI_KILL'));
+
+// Social Hacks
 bot.command('fb_hack', (ctx) => handleCmd(ctx, '/fb_hack', 'FB_HACK'));
 bot.command('tiktok_hack', (ctx) => handleCmd(ctx, '/tiktok_hack', 'TIKTOK_HACK'));
 bot.command('twitter_hack', (ctx) => handleCmd(ctx, '/twitter_hack', 'TWITTER_HACK'));
 bot.command('snap_hack', (ctx) => handleCmd(ctx, '/snap_hack', 'SNAP_HACK'));
+
+// Other Social
 bot.command('ban_wa', (ctx) => handleCmd(ctx, '/ban_wa', 'WA_BAN'));
 bot.command('ban_tg', (ctx) => handleCmd(ctx, '/ban_tg', 'TG_BAN'));
 bot.command('ip_hack', (ctx) => handleCmd(ctx, '/ip_hack', 'IP_TRACE'));
@@ -286,145 +309,195 @@ bot.command('delay_hell', (ctx) => handleCmd(ctx, '/delay_hell', 'DELAY'));
 bot.command('group_crash', (ctx) => handleCmd(ctx, '/group_crash', 'GROUP_CRASH'));
 bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
-// ================= MENU GENERATOR DEFINITION =================
-const getBeautifiedMenuText = () => {
-  const name = BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM';
-  return `⚡ *${name} SYSTEM INTERFACE* ⚡\n\`\`\`\n====== 🔥 VIRUS COMMANDS ======\n/droid_virus <ip>  -> Android Virus\n/ios_virus <ip>    -> iOS Virus\n/linux_virus <ip>  -> Linux Virus\n/pc_kill <ip>      -> PC Killer\n/destroy <ip>      -> Destroyer\n\n======= 🐛 BUG EXPLOITS =======\n/infect_ill <val>  -> Infect Ill\n/triple_x <val>    -> Triple X\n/ovia_load <val>   -> Ovia Load\n/hate_you <val>    -> Hate You\n/mini_kill <val>   -> Mini Kill\n\n====== 💀 SOCIAL EXPLOITS =====\n/fb_hack <email>   -> Facebook Hack\n/tiktok_hack <usr> -> TikTok Hack\n/twitter_hack <usr>-> Twitter Hack\n/snap_hack <usr>   -> Snapchat Hack\n/ban_wa <num>      -> WhatsApp Ban\n/ban_tg <user>     -> Telegram Ban\n/ip_hack <num>     -> IP Trace Location\n\n======= 📱 WHATSAPP TOOLS =====\n/invis_hell <num>  -> Invisible Mode\n/delay_hell <num>  -> Delay Injector\n/group_crash <gc>  -> Group Crasher\n\n========= 🤖 UTILITIES ========\n/clone <token>     -> Clone Bot Main\n\n======= 👑 OWNER PRIVS ========\n/addprem  | /delprem  | /broadcast\n/addadmin | /deladmin | /listusers\n\`\`\`\n*⚠️ MAINFRAME STATUS: ONLINE & READY*`;
-};
-
 // ================= START COMMAND =================
 bot.start(async (ctx) => {
-  const userId = ctx.from.id;
-  const username = ctx.from.username || 'Unknown';
-  
-  if (!allUsers.has(userId)) {
-    allUsers.add(userId);
-    saveAllUsers();
-    await logToGroup(`🆕 NEW USER | ${userId} | @${username}`);
-  }
-
-  const communityRows = [];
-  for (let i = 0; i < COMMUNITY_BUTTONS.length; i += 2) {
-    const row = COMMUNITY_BUTTONS.slice(i, i+2).map(btn => Markup.button.url(btn.name, btn.url));
-    communityRows.push(row);
-  }
-
-  const keyboard = Markup.inlineKeyboard([
-    [Markup.button.callback('📜 VIEW COMMANDS', 'show_menu')],
-    ...communityRows,
-    [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')],
-    [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME ? OWNER_USERNAME.replace('@', '') : ''}`)]
-  ]);
-
-  const welcomeMsg = `🔥 *${BOT_NAME || 'SYSTEM'} TERMINAL* 🔥\n\n☠️ *WELCOME ${ctx.from.first_name ? ctx.from.first_name.toUpperCase() : 'HACKER'}* ☠️\n\n💀 *CLICK THE BUTTON BELOW TO DEPLOY COMMANDS* 💀\n\n⚡ *POWERED BY LORD SATANUS* ⚡`;
-
   try {
-    if (START_IMAGE) {
-      await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown', ...keyboard });
-    } else {
-      await ctx.reply(welcomeMsg, { parse_mode: 'Markdown', ...keyboard });
+    const userId = ctx.from.id;
+    const username = ctx.from.username || 'Unknown';
+    
+    if (!allUsers.has(userId)) {
+      allUsers.add(userId);
+      saveAllUsers();
+      await logToGroup(`🆕 NEW USER | ${userId} | @${username}`);
     }
-  } catch (error) {
-    await ctx.reply(welcomeMsg, { parse_mode: 'Markdown', ...keyboard });
-  }
+
+    const communityRows = [];
+    for (let i = 0; i < COMMUNITY_BUTTONS.length; i += 2) {
+      const row = COMMUNITY_BUTTONS.slice(i, i+2).map(btn => Markup.button.url(btn.name, btn.url));
+      communityRows.push(row);
+    }
+
+    const keyboard = Markup.inlineKeyboard([
+      [Markup.button.callback('📜 VIEW COMMANDS', 'show_menu')],
+      ...communityRows,
+      [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')],
+      [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
+    ]);
+
+    // Changed text variables to HTML to completely avoid markdown unclosed entity errors.
+    const welcomeMsg = `🔥 <b>${BOT_NAME}</b> 🔥\n\n☠️ <b>WELCOME ${ctx.from.first_name || 'HACKER'}</b> ☠️\n\n💀 <b>CLICK BUTTON BELOW FOR COMMANDS</b> 💀\n\n⚡ <b>POWERED BY LORD SATANUS</b> ⚡`;
+
+    if (START_IMAGE) {
+      try {
+        await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'HTML', ...keyboard });
+      } catch (imgErr) {
+        await ctx.reply(welcomeMsg, { parse_mode: 'HTML', ...keyboard });
+      }
+    } else {
+      await ctx.reply(welcomeMsg, { parse_mode: 'HTML', ...keyboard });
+    }
+  } catch (err) { console.error('Start command error:', err.message); }
 });
 
 // ================= MENU BUTTON =================
 bot.action('show_menu', async (ctx) => {
-  await ctx.answerCbQuery('📜 Loading panel commands...');
-  
-  const menuKeyboard = Markup.inlineKeyboard([
-    [Markup.button.url('👥 MAIN GROUP', 'https://t.me/lordsatanusmaingc'), Markup.button.url('📢 MAIN CHANNEL', 'https://t.me/lordsatanusmainchannel')],
-    [Markup.button.url('🔥 RYOMEN TECH', 'https://t.me/RyomenTechtheuprising'), Markup.button.url('💀 FYT_13', 'https://t.me/FYT_13')],
-    [Markup.button.url('💰 EARNING BIT SATAN', 'https://t.me/earningbitsatan664'), Markup.button.url('⚡ HELL GUARD', 'https://t.me/hellgaurd666')],
-    [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
-  ]);
+  try {
+    await ctx.answerCbQuery('📜 Loading commands...');
+    
+    const menuText = `┌─────────────────────────────────┐
+│ 💀 <b>${BOT_NAME}</b> 💀 │
+├─────────────────────────────────┤
+│ 🔥 VIRUS                        │
+│ /droid_virus &lt;ip&gt;  - Android    │
+│ /ios_virus &lt;ip&gt;    - iOS        │
+│ /linux_virus &lt;ip&gt;  - Linux      │
+│ /pc_kill &lt;ip&gt;      - PC Killer  │
+│ /destroy &lt;ip&gt;      - Destroyer  │
+├─────────────────────────────────┤
+│ 🐛 BUGS                         │
+│ /infect_ill &lt;x&gt;    - Infect Ill │
+│ /triple_x &lt;x&gt;      - Triple X   │
+│ /ovia_load &lt;x&gt;     - Ovia Load  │
+│ /hate_you &lt;x&gt;      - Hate You   │
+│ /mini_kill &lt;x&gt;     - Mini Kill  │
+├─────────────────────────────────┤
+│ 💀 SOCIAL HACKS                  │
+│ /fb_hack &lt;email&gt;   - Facebook   │
+│ /tiktok_hack &lt;user&gt;- TikTok     │
+│ /twitter_hack &lt;user&gt;- Twitter   │
+│ /snap_hack &lt;user&gt;  - Snapchat   │
+│ /ban_wa &lt;num&gt;      - WhatsApp   │
+│ /ban_tg &lt;user&gt;     - Telegram   │
+│ /ip_hack &lt;num&gt;     - IP Trace   │
+├─────────────────────────────────┤
+│ 📱 WA TOOLS                     │
+│ /invis_hell &lt;num&gt;  - Invisible  │
+│ /delay_hell &lt;num&gt;  - Delay      │
+│ /group_crash &lt;gc&gt;  - Group Crash│
+├─────────────────────────────────┤
+│ 🤖 OTHER                        │
+│ /clone &lt;token&gt;     - Clone Bot  │
+├─────────────────────────────────┤
+│ 👑 OWNER                        │
+│ /addprem /delprem /broadcast    │
+│ /listusers /allusers /addadmin  │
+└─────────────────────────────────┘`;
 
-  await ctx.reply(getBeautifiedMenuText(), { parse_mode: 'Markdown', ...menuKeyboard });
+    const menuKeyboard = Markup.inlineKeyboard([
+      [Markup.button.url('👥 MAIN GROUP', 'https://t.me/lordsatanusmaingc'), Markup.button.url('📢 MAIN CHANNEL', 'https://t.me/lordsatanusmainchannel')],
+      [Markup.button.url('🔥 RYOMEN TECH', 'https://t.me/RyomenTechtheuprising'), Markup.button.url('💀 FYT_13', 'https://t.me/FYT_13')],
+      [Markup.button.url('💰 EARNING BIT SATAN', 'https://t.me/earningbitsatan664'), Markup.button.url('⚡ HELL GUARD', 'https://t.me/hellgaurd666')],
+      [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
+    ]);
+
+    await ctx.reply(menuText, { parse_mode: 'HTML', ...menuKeyboard });
+  } catch (err) { console.error('Show menu error:', err.message); }
 });
 
 // ================= PREMIUM CHECK =================
 bot.action('check_premium', async (ctx) => {
-  await ctx.answerCbQuery('💎 Verifying system access...');
-  const userId = ctx.from.id;
-  if (isPremium(userId)) {
-    await ctx.reply(`⭐ *STATUS: PREMIUM LIFETIME*\n👤 User ID: \`${userId}\`\n🔥 System Permissions: *ALL EXPLOITS UNLOCKED*`, { parse_mode: 'Markdown' });
-  } else {
-    await ctx.reply(`🔴 *STATUS: UNVERIFIED USER*\n💎 Upgrade Plan: ${PREMIUM_BOT}\n👑 Request Access From: ${OWNER_USERNAME}`, { parse_mode: 'Markdown' });
-  }
+  try {
+    await ctx.answerCbQuery('💎 Checking...');
+    const userId = ctx.from.id;
+    if (isPremium(userId)) {
+      await ctx.reply(`⭐ <b>PREMIUM USER</b> ⭐\n👤 ID: ${userId}\n🔥 ALL TOOLS UNLOCKED`, { parse_mode: 'HTML' });
+    } else {
+      await ctx.reply(`🔴 <b>FREE USER</b> 🔴\n💎 UPGRADE: ${PREMIUM_BOT}\n👑 OWNER: ${OWNER_USERNAME}`, { parse_mode: 'HTML' });
+    }
+  } catch (err) { console.error('Check premium error:', err.message); }
 });
 
 // ================= ADMIN COMMANDS =================
 bot.command('addadmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('ℹ️ *Usage:* \`/addadmin <id>\`', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('Usage: /addadmin <id>');
   adminIds.add(uid);
   saveAdmins();
-  ctx.reply(`✅ *User \`${uid}\` elevated to Administrative rights.*`, { parse_mode: 'Markdown' });
+  ctx.reply(`✅ Admin added: ${uid}`);
 });
 
 bot.command('deladmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('ℹ️ *Usage:* \`/deladmin <id>\`', { parse_mode: 'Markdown' });
-  if (uid === OWNER_ID) return ctx.reply('❌ *Operation aborted:* Primary Owner cannot be stripped of permissions.', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('Usage: /deladmin <id>');
+  if (uid === OWNER_ID) return ctx.reply('❌ Cannot remove owner');
   adminIds.delete(uid);
   saveAdmins();
-  ctx.reply(`❌ *Administrative privileges revoked from user \`${uid}\`.*`, { parse_mode: 'Markdown' });
+  ctx.reply(`❌ Admin removed: ${uid}`);
 });
 
 bot.command('addprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('ℹ️ *Usage:* \`/addprem <id>\`', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('Usage: /addprem <id>');
   premiumUsers.add(uid);
   savePremiumUsers();
-  ctx.reply(`✅ *Premium activation key granted to user \`${uid}\`.*`, { parse_mode: 'Markdown' });
+  ctx.reply(`✅ Premium added: ${uid}`);
 });
 
 bot.command('delprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('ℹ️ *Usage:* \`/delprem <id>\`', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('Usage: /delprem <id>');
   premiumUsers.delete(uid);
   savePremiumUsers();
-  ctx.reply(`❌ *Premium capabilities stripped from user \`${uid}\`.*`, { parse_mode: 'Markdown' });
+  ctx.reply(`❌ Premium removed: ${uid}`);
 });
 
 bot.command('broadcast', async (ctx) => {
-  if (!isAdmin(ctx.from.id)) return ctx.reply('🔒 *ADMIN PRIVILEGES REQUIRED*', { parse_mode: 'Markdown' });
+  if (!isAdmin(ctx.from.id)) return ctx.reply('🔒 ADMIN ONLY');
   const msg = ctx.message.text.split(' ').slice(1).join(' ');
-  if (!msg) return ctx.reply('ℹ️ *Usage:* \`/broadcast <message>\`', { parse_mode: 'Markdown' });
+  if (!msg) return ctx.reply('Usage: /broadcast <message>');
   let sent = 0;
   for (const uid of allUsers) {
     try { 
-      await bot.telegram.sendMessage(uid, `📢 *GLOBAL SYSTEM BROADCAST*\n\n${msg}`, { parse_mode: 'Markdown' }); 
+      await bot.telegram.sendMessage(uid, `📢 <b>BROADCAST</b>\n\n${msg}`, { parse_mode: 'HTML' }); 
       sent++; 
     } catch(e) {}
     await new Promise(r => setTimeout(r, 50));
   }
-  ctx.reply(`✅ *Broadcast completed successfully to \`${sent}\` users.*`, { parse_mode: 'Markdown' });
+  ctx.reply(`✅ Sent to ${sent} users`);
 });
 
 bot.command('listusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
-  if (premiumUsers.size === 0) return ctx.reply('ℹ️ *No active premium nodes registered.*', { parse_mode: 'Markdown' });
-  ctx.reply(`👑 *Active Premium Nodes:*\n\`\`\`\n${[...premiumUsers].join('\n')}\n\`\`\``, { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
+  if (premiumUsers.size === 0) return ctx.reply('No premium users');
+  ctx.reply(`👑 <b>Premium Users:</b>\n${[...premiumUsers].join('\n')}`, { parse_mode: 'HTML' });
 });
 
 bot.command('allusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
-  if (allUsers.size === 0) return ctx.reply('ℹ️ *Database registry is currently empty.*', { parse_mode: 'Markdown' });
-  ctx.reply(`👥 *Total Database Registry:*\n\`\`\`\n${[...allUsers].join('\n')}\n\`\`\``, { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
+  if (allUsers.size === 0) return ctx.reply('No users');
+  ctx.reply(`👥 <b>All Users:</b>\n${[...allUsers].join('\n')}`, { parse_mode: 'HTML' });
+});
+
+// ================= GLOBAL UNHANDLED REJECTION CATCH =================
+// Crucial block to protect your container from crashing due to unexpected network or API parse errors
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception thrown:', err);
 });
 
 // ================= LAUNCH =================
 bot.launch().then(() => {
-  console.log(`☠️ ${BOT_NAME || 'BOT'} MAINFRAME ONLINE ☠️`);
-  console.log(`✅ Owner Terminal: ${OWNER_USERNAME}`);
-  console.log(`✅ Premium Nodes: ${premiumUsers.size} | Total Database: ${allUsers.size}`);
-}).catch(err => console.error('System boot error:', err));
+  console.log(`☠️ ${BOT_NAME} RUNNING ☠️`);
+  console.log(`✅ Owner: ${OWNER_USERNAME}`);
+  console.log(`✅ Premium: ${premiumUsers.size} | Total: ${allUsers.size}`);
+}).catch(err => console.error('Launch error:', err));
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
