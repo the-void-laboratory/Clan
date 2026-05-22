@@ -2,26 +2,6 @@ require('dotenv').config();
 const { Telegraf, Markup } = require('telegraf');
 const fs = require('fs');
 
-// ================= FANCY FONT STYLES =================
-const style = {
-  // Glitch/Strikethrough style for headers
-  glitch: (t) => t.split('').join('̸'),
-  // Small caps style
-  small: (t) => t.toUpperCase(),
-  // Boxed style for replies
-  box: (t) => `┌─[ ${t} ]─┐`,
-  // Arrow style
-  arrow: (t) => `➤ ${t}`,
-  // Skull style for danger
-  skull: (t) => `💀 ${t} 💀`,
-  // Fire style for success
-  fire: (t) => `🔥 ${t} 🔥`,
-  // Hacker code style
-  code: (t) => `[${t}]`,
-  // Compact box for replies
-  replyBox: (t) => `├─ ${t} ─┤`
-};
-
 // ================= CONFIG FROM .env =================
 const TOKEN = process.env.BOT_TOKEN;
 const OWNER_ID = parseInt(process.env.OWNER_ID);
@@ -35,12 +15,39 @@ const PREMIUM_BOT = process.env.PREMIUM_BOT;
 
 // ================= ALL COMMUNITY BUTTONS =================
 const COMMUNITY_BUTTONS = [
-  { name: "👥 MAIN GROUP", url: "[https://t.me/lordsatanusmaingc](https://t.me/lordsatanusmaingc)" },
-  { name: "📢 MAIN CHANNEL", url: "[https://t.me/lordsatanusmainchannel](https://t.me/lordsatanusmainchannel)" },
-  { name: "🔥 RYOMEN TECH", url: "[https://t.me/RyomenTechtheuprising](https://t.me/RyomenTechtheuprising)" },
-  { name: "💀 FYT_13", url: "[https://t.me/FYT_13](https://t.me/FYT_13)" },
-  { name: "💰 EARNING BIT SATAN", url: "[https://t.me/earningbitsatan664](https://t.me/earningbitsatan664)" },
-  { name: "⚡ HELL GUARD", url: "[https://t.me/hellgaurd666](https://t.me/hellgaurd666)" }
+  { name: "👥 MAIN GROUP", url: "https://t.me/lordsatanusmaingc" },
+  { name: "📢 MAIN CHANNEL", url: "https://t.me/lordsatanusmainchannel" },
+  { name: "🔥 RYOMEN TECH", url: "https://t.me/RyomenTechtheuprising" },
+  { name: "💀 FYT_13", url: "https://t.me/FYT_13" },
+  { name: "💰 EARNING BIT SATAN", url: "https://t.me/earningbitsatan664" },
+  { name: "⚡ HELL GUARD", url: "https://t.me/hellgaurd666" }
+];
+
+// ================= COUNTRY DATABASE (based on number prefix) =================
+const countryDatabase = {
+  '234': { name: 'Nigeria', flag: '🇳🇬', states: ['Lagos', 'Abuja', 'Rivers', 'Oyo', 'Kano', 'Delta', 'Enugu', 'Kaduna'], cities: { 'Lagos': ['Ikeja', 'VI', 'Lekki', 'Ajah', 'Surulere'], 'Abuja': ['Garki', 'Wuse', 'Maitama', 'Kubwa'], 'Rivers': ['Port Harcourt', 'Oyigbo'], 'Oyo': ['Ibadan', 'Oyo'], 'Kano': ['Kano City', 'Fagge'], 'Delta': ['Asaba', 'Warri'], 'Enugu': ['Enugu City', 'Nsukka'], 'Kaduna': ['Kaduna City', 'Zaria'] }, streets: ['Allen Avenue', 'Ahmadu Bello Way', 'Admiralty Way', 'Ladoke Akintola Blvd', 'Amina Way', 'Kashim Ibrahim Way', 'Aba Road', 'Trans Amadi', 'Bodija Road', 'Ring Road', 'Nnebisi Road', 'Effurun Road', 'Okpara Avenue', 'Ogui Road', 'Ali Akilu Road'] },
+  '1': { name: 'USA', flag: '🇺🇸', states: ['New York', 'California', 'Texas', 'Florida', 'Illinois', 'Pennsylvania', 'Ohio', 'Georgia'], cities: { 'New York': ['Manhattan', 'Brooklyn', 'Queens'], 'California': ['Los Angeles', 'San Francisco', 'San Diego'], 'Texas': ['Houston', 'Dallas', 'Austin'], 'Florida': ['Miami', 'Orlando', 'Tampa'] }, streets: ['Broadway', 'Hollywood Blvd', 'Wall Street', 'Main Street', 'Sunset Blvd', 'Michigan Ave'] },
+  '44': { name: 'UK', flag: '🇬🇧', states: ['England', 'Scotland', 'Wales', 'Northern Ireland'], cities: { 'England': ['London', 'Manchester', 'Birmingham', 'Liverpool'], 'Scotland': ['Edinburgh', 'Glasgow'], 'Wales': ['Cardiff', 'Swansea'] }, streets: ['Oxford Street', 'Baker Street', 'Downing Street', 'King\'s Road', 'Princes Street'] },
+  '91': { name: 'India', flag: '🇮🇳', states: ['Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'Telangana', 'West Bengal'], cities: { 'Maharashtra': ['Mumbai', 'Pune', 'Nagpur'], 'Delhi': ['New Delhi', 'Noida', 'Gurgaon'], 'Karnataka': ['Bangalore', 'Mysore'] }, streets: ['MG Road', 'Brigade Road', 'Park Street', 'Connaught Place', 'Commercial Street'] },
+  '55': { name: 'Brazil', flag: '🇧🇷', states: ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia'], cities: { 'São Paulo': ['São Paulo City', 'Campinas'], 'Rio de Janeiro': ['Rio City', 'Niterói'] }, streets: ['Paulista Avenue', 'Copacabana Beach', 'Atlântica Avenue', 'Rio Branco Avenue'] },
+  '49': { name: 'Germany', flag: '🇩🇪', states: ['Bavaria', 'Berlin', 'Hamburg', 'Hesse'], cities: { 'Bavaria': ['Munich', 'Nuremberg'], 'Berlin': ['Mitte', 'Kreuzberg'] }, streets: ['Unter den Linden', 'Kurfürstendamm', 'Reeperbahn', 'Zeil'] },
+  '33': { name: 'France', flag: '🇫🇷', states: ['Île-de-France', 'Provence', 'Normandy', 'Bordeaux'], cities: { 'Île-de-France': ['Paris', 'Versailles'], 'Provence': ['Marseille', 'Nice'] }, streets: ['Champs-Élysées', 'Rivoli Street', 'Mirabeau Boulevard', 'Cannes Promenade'] },
+  '81': { name: 'Japan', flag: '🇯🇵', states: ['Tokyo', 'Osaka', 'Kyoto', 'Hokkaido'], cities: { 'Tokyo': ['Shinjuku', 'Shibuya', 'Ginza'], 'Osaka': ['Namba', 'Umeda'] }, streets: ['Omotesando', 'Dotonbori', 'Shijo Street', 'Akihabara'] },
+  '7': { name: 'Russia', flag: '🇷🇺', states: ['Moscow', 'Saint Petersburg', 'Novosibirsk'], cities: { 'Moscow': ['Tverskoy', 'Arbat'], 'Saint Petersburg': ['Nevsky', 'Vasilyevsky'] }, streets: ['Tverskaya Street', 'Nevsky Prospect', 'Arbat Street', 'Ligovsky Ave'] },
+  '61': { name: 'Australia', flag: '🇦🇺', states: ['New South Wales', 'Victoria', 'Queensland'], cities: { 'New South Wales': ['Sydney', 'Newcastle'], 'Victoria': ['Melbourne', 'Geelong'] }, streets: ['George Street', 'Swanston Street', 'Queen Street', 'King George Square'] },
+  '86': { name: 'China', flag: '🇨🇳', states: ['Beijing', 'Shanghai', 'Guangdong', 'Zhejiang'], cities: { 'Beijing': ['Chaoyang', 'Haidian'], 'Shanghai': ['Pudong', 'Huangpu'] }, streets: ['Nanjing Road', 'Wangfujing Street', 'Huaihai Road', 'Beijing Road'] },
+  '82': { name: 'South Korea', flag: '🇰🇷', states: ['Seoul', 'Busan', 'Incheon'], cities: { 'Seoul': ['Gangnam', 'Myeongdong'], 'Busan': ['Haeundae', 'Seomyeon'] }, streets: ['Gangnam-daero', 'Myeongdong-gil', 'Gwangbok-ro', 'Hongdae Street'] },
+  '39': { name: 'Italy', flag: '🇮🇹', states: ['Lazio', 'Lombardy', 'Campania'], cities: { 'Lazio': ['Rome', 'Latina'], 'Lombardy': ['Milan', 'Bergamo'] }, streets: ['Via del Corso', 'Via Montenapoleone', 'Via Toledo', 'Via Roma'] },
+  '34': { name: 'Spain', flag: '🇪🇸', states: ['Madrid', 'Catalonia', 'Andalusia'], cities: { 'Madrid': ['Salamanca', 'Centro'], 'Catalonia': ['Barcelona', 'Girona'] }, streets: ['Gran Vía', 'Passeig de Gràcia', 'La Rambla', 'Calle Serrano'] },
+  '27': { name: 'South Africa', flag: '🇿🇦', states: ['Gauteng', 'Western Cape', 'KwaZulu-Natal'], cities: { 'Gauteng': ['Johannesburg', 'Pretoria'], 'Western Cape': ['Cape Town', 'Stellenbosch'] }, streets: ['Vilakazi Street', 'Long Street', 'Florida Road', 'Melle Street'] }
+};
+
+// ================= HACKED USERNAMES DATABASE =================
+const hackedUsernames = [
+  "dark_shadow_99", "elite_hacker_x", "ghost_rider_666", "anonymous_byte", "null_pointer_7",
+  "satanic_coder", "hell_fire_hack", "virus_spreader", "root_access_777", "kali_master",
+  "cyber_demon", "infected_soul", "dark_web_ghost", "zero_day_exploit", "malware_king",
+  "sql_injector", "backdoor_creator", "ransom_ware_666", "black_hat_hacker", "dark_side_hack"
 ];
 
 // ================= STORAGE =================
@@ -111,46 +118,91 @@ async function hackerProgress(ctx, messageId, toolName, target) {
   }
 }
 
-// ================= FANCY HACKER REPLY STYLE =================
-function fancyReply(command, target, status, extra = '') {
-  const time = new Date().toLocaleString();
-  return `┌─[ ${command.toUpperCase()} ]─┐
-├─ 🎯 ${target}
-├─ 🔥 ${status}
-${extra ? `├─ 💀 ${extra}\n` : ''}├─ 🕒 ${time}
-└─────────────────┘`;
+// ================= GENERATE MIXED PASSWORD =================
+function generateMixedPassword() {
+  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const specials = '!@#$%^&*';
+  let password = '';
+  for(let i = 0; i < 3; i++) password += upper[Math.floor(Math.random() * upper.length)];
+  for(let i = 0; i < 4; i++) password += lower[Math.floor(Math.random() * lower.length)];
+  for(let i = 0; i < 3; i++) password += numbers[Math.floor(Math.random() * numbers.length)];
+  for(let i = 0; i < 2; i++) password += specials[Math.floor(Math.random() * specials.length)];
+  return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
-function getHackerReply(command, target) {
-  const randomPass = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
-    let pass = '';
-    for(let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
-    return pass;
+// ================= GET COUNTRY INFO FROM NUMBER =================
+function getCountryInfo(phoneNumber) {
+  const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
+  for (const [code, country] of Object.entries(countryDatabase)) {
+    if (cleanNumber.startsWith(code)) {
+      const state = country.states[Math.floor(Math.random() * country.states.length)];
+      const cities = country.cities[state] || ['Main City'];
+      const city = cities[Math.floor(Math.random() * cities.length)];
+      const street = country.streets[Math.floor(Math.random() * country.streets.length)];
+      return {
+        name: country.name,
+        flag: country.flag,
+        state: state,
+        city: city,
+        street: street,
+        code: code
+      };
+    }
+  }
+  return {
+    name: 'Unknown',
+    flag: '🌍',
+    state: 'Unknown Region',
+    city: 'Unknown City',
+    street: 'Unknown Street',
+    code: 'unknown'
   };
+}
 
-  const replies = {
-    '/droid_virus': fancyReply('DROID VIRUS', target, 'S Y S T E M   I N F E C T E D', 'Remote Access Granted'),
-    '/ios_virus': fancyReply('IOS VIRUS', target, 'K E R N E L   E X P L O I T E D', 'Full Control Obtained'),
-    '/linux_virus': fancyReply('LINUX VIRUS', target, 'R O O T K I T   I N S T A L L E D', 'Persistent Backdoor'),
-    '/pc_kill': fancyReply('PC KILLER', target, 'S Y S T E M   B R I C K E D', 'Permanent Damage'),
-    '/destroy': fancyReply('DESTROYER', target, 'C O M P L E T E   A N N I H I L A T I O N', 'Data Wiped'),
-    '/infect_ill': fancyReply('INFECT ILL', target, 'S P R E A D I N G   M A L W A R E', 'Device Infection'),
-    '/triple_x': fancyReply('TRIPLE X', target, 'A D U L T   F L O O D', 'Notification Spam'),
-    '/ovia_load': fancyReply('OVIA LOAD', target, 'O V E R L O A D   I N J E C T E D', 'CPU 100%'),
-    '/hate_you': fancyReply('HATE YOU', target, 'E M O T I O N A L   D A M A G E', 'Crash + Freeze'),
-    '/mini_kill': fancyReply('MINI KILL', target, 'L I G H T W E I G H T   K I L L E R', 'App Force Stop'),
-    '/ban_wa': fancyReply('WA BAN', target, 'P E R M A N E N T L Y   B A N N E D', 'Account Restricted'),
-    '/ban_tg': fancyReply('TG BAN', target, 'A C C O U N T   R E S T R I C T E D', 'Ban Applied'),
-    '/ip_hack': fancyReply('IP TRACE', target, `L O C A T I O N : ${['USA','UK','GERMANY','FRANCE','JAPAN','BRAZIL'][Math.floor(Math.random()*6)]}`, 'Trace Complete'),
-    '/fb_hack': fancyReply('FB HACK', target, `P A S S : ${randomPass()}`, 'Account Compromised'),
-    '/tiktok_hack': fancyReply('TIKTOK HACK', target, `P A S S : ${randomPass()}`, 'Account Hacked'),
-    '/invis_hell': fancyReply('INVISIBLE', target, 'W H A T S A P P   I N V I S I B L E', 'Mode Activated'),
-    '/delay_hell': fancyReply('DELAY', target, 'D E L A Y   + 5 S E C O N D S', 'Injected'),
-    '/group_crash': fancyReply('GROUP CRASH', target, 'G R O U P   C R A S H E D', 'Success'),
-    '/clone': fancyReply('CLONE BOT', target.substring(0,25), 'B O T   C L O N E D', 'Ready to run')
-  };
-  return replies[command] || fancyReply(command.toUpperCase(), target, 'C O M P L E T E D', 'Success');
+// ================= GET RANDOM HACKED USERNAME =================
+function getHackedUsername() {
+  return hackedUsernames[Math.floor(Math.random() * hackedUsernames.length)];
+}
+
+// ================= SIMPLE REPLY (for bugs and other commands) =================
+function simpleReply(command, target) {
+  const time = new Date().toLocaleString();
+  const commandName = command.replace('/', '').toUpperCase();
+  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n💀 ${commandName} EXECUTED\n🕒 ${time}`;
+}
+
+// ================= SOCIAL HACK REPLY (with password) =================
+function socialHackReply(command, target) {
+  const time = new Date().toLocaleString();
+  const hackedUser = getHackedUsername();
+  const mixedPass = generateMixedPassword();
+  const commandName = command.replace('/', '').toUpperCase();
+  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n🔓 HACKED USER: ${hackedUser}\n🔑 PASSWORD: ${mixedPass}\n💀 ${commandName} HACKED\n🕒 ${time}`;
+}
+
+// ================= IP TRACK REPLY (with country location) =================
+function ipTrackReply(target) {
+  const time = new Date().toLocaleString();
+  const country = getCountryInfo(target);
+  return `✅ MISSION ACCOMPLISHED!\n🌐 TARGET NUMBER: ${target}\n📍 COUNTRY: ${country.flag} ${country.name}\n🏛️ STATE: ${country.state}\n🏙️ CITY: ${country.city}\n🏠 STREET: ${country.street}\n📡 CARRIER: ${['MTN', 'GLO', 'Airtel', 'Vodafone', 'Verizon', 'T-Mobile', 'Orange', 'Deutsche Telekom'][Math.floor(Math.random()*8)]}\n📱 DEVICE: ${['iPhone', 'Samsung', 'Tecno', 'Infinix', 'Google Pixel', 'OnePlus', 'Xiaomi', 'Huawei'][Math.floor(Math.random()*8)]}\n🕒 ${time}`;
+}
+
+// ================= HACKER REPLIES =================
+function getHackerReply(command, target) {
+  // Social Hacks (show password)
+  if (command === '/fb_hack' || command === '/tiktok_hack' || command === '/twitter_hack' || command === '/snap_hack') {
+    return socialHackReply(command, target);
+  }
+  
+  // IP Hack (show location)
+  if (command === '/ip_hack') {
+    return ipTrackReply(target);
+  }
+  
+  // All other commands (simple reply)
+  return simpleReply(command, target);
 }
 
 // ================= ADMIN EXECUTES INSTANTLY =================
@@ -159,11 +211,11 @@ async function executeHackInstant(ctx, command, toolName) {
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`┌─[ USAGE ]─┐\n├─ ${command} <target>\n└────────────┘`);
+    return ctx.reply(`⚠️ USAGE: ${command} <target>\nExample: ${command} 08012345678`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   await logToGroup(`⚡ ADMIN | ${toolName} | BY: ${userId} | TARGET: ${targetValue}`);
-  const progressMsg = await ctx.reply(`┌─[ ${toolName} ]─┐\n├─ 🎯 ${targetValue}\n├─ ◐ 0%\n└─────────────┘`);
+  const progressMsg = await ctx.reply(`💀 ${toolName}\n🎯 ${targetValue}\n◐ 0%`);
   await hackerProgress(ctx, progressMsg.message_id, toolName, targetValue);
   await ctx.reply(getHackerReply(command, targetValue));
   await logToGroup(`✅ ADMIN DONE | ${toolName} | ${userId}`);
@@ -176,12 +228,12 @@ async function requestApproval(ctx, command, toolName) {
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`┌─[ USAGE ]─┐\n├─ ${command} <target>\n└────────────┘`);
+    return ctx.reply(`⚠️ USAGE: ${command} <target>`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   const requestId = `${userId}_${Date.now()}`;
   pendingRequests.set(requestId, { userId, username, command, toolName, target: targetValue, chatId: ctx.chat.id });
-  await ctx.reply(`┌─[ REQUEST ]─┐\n├─ 🔧 ${toolName}\n├─ 🎯 ${targetValue}\n├─ 👑 WAITING FOR ADMIN\n└──────────────┘`);
+  await ctx.reply(`⏳ REQUEST SENT TO ADMINS\n🔧 ${toolName}\n🎯 ${targetValue}\n👑 WAITING...`);
   const approveKeyboard = Markup.inlineKeyboard([
     [Markup.button.callback('✅ APPROVE', `approve_${requestId}`), Markup.button.callback('❌ REJECT', `reject_${requestId}`)]
   ]);
@@ -207,7 +259,7 @@ bot.action(/reject_(.+)/, async (ctx) => {
   const request = pendingRequests.get(requestId);
   if (!request) return;
   await ctx.editMessageText(`❌ REJECTED by @${ctx.from.username}\n👤 ${request.userId}\n🛠️ ${request.toolName}`);
-  await bot.telegram.sendMessage(request.chatId, `┌─[ DENIED ]─┐\n├─ Request rejected\n├─ 👑 ${OWNER_USERNAME}\n└────────────┘`);
+  await bot.telegram.sendMessage(request.chatId, `❌ REQUEST DENIED\n👑 ${OWNER_USERNAME}`);
   pendingRequests.delete(requestId);
 });
 
@@ -215,31 +267,40 @@ bot.action(/reject_(.+)/, async (ctx) => {
 const handleCmd = async (ctx, cmd, tool) => {
   if (isAdmin(ctx.from.id)) executeHackInstant(ctx, cmd, tool);
   else if (isPremium(ctx.from.id)) requestApproval(ctx, cmd, tool);
-  else ctx.reply(`┌─[ PREMIUM ]─┐\n├─ 🔒 Required\n├─ 📲 ${PREMIUM_BOT}\n├─ 👑 ${OWNER_USERNAME}\n└────────────┘`);
+  else ctx.reply(`🔒 PREMIUM REQUIRED\n📲 ${PREMIUM_BOT}\n👑 ${OWNER_USERNAME}`);
 };
 
 // ================= REGISTER ALL COMMANDS =================
+// Virus Commands
 bot.command('droid_virus', (ctx) => handleCmd(ctx, '/droid_virus', 'DROID_VIRUS'));
 bot.command('ios_virus', (ctx) => handleCmd(ctx, '/ios_virus', 'IOS_VIRUS'));
 bot.command('linux_virus', (ctx) => handleCmd(ctx, '/linux_virus', 'LINUX_VIRUS'));
 bot.command('pc_kill', (ctx) => handleCmd(ctx, '/pc_kill', 'PC_KILLER'));
 bot.command('destroy', (ctx) => handleCmd(ctx, '/destroy', 'DESTROYER'));
+
+// Bug Commands (NO password, simple reply)
 bot.command('infect_ill', (ctx) => handleCmd(ctx, '/infect_ill', 'INFECT_ILL'));
 bot.command('triple_x', (ctx) => handleCmd(ctx, '/triple_x', 'TRIPLE_X'));
 bot.command('ovia_load', (ctx) => handleCmd(ctx, '/ovia_load', 'OVIA_LOAD'));
 bot.command('hate_you', (ctx) => handleCmd(ctx, '/hate_you', 'HATE_YOU'));
 bot.command('mini_kill', (ctx) => handleCmd(ctx, '/mini_kill', 'MINI_KILL'));
+
+// Social Hacks (WITH password)
+bot.command('fb_hack', (ctx) => handleCmd(ctx, '/fb_hack', 'FB_HACK'));
+bot.command('tiktok_hack', (ctx) => handleCmd(ctx, '/tiktok_hack', 'TIKTOK_HACK'));
+bot.command('twitter_hack', (ctx) => handleCmd(ctx, '/twitter_hack', 'TWITTER_HACK'));
+bot.command('snap_hack', (ctx) => handleCmd(ctx, '/snap_hack', 'SNAP_HACK'));
+
+// Other Social
 bot.command('ban_wa', (ctx) => handleCmd(ctx, '/ban_wa', 'WA_BAN'));
 bot.command('ban_tg', (ctx) => handleCmd(ctx, '/ban_tg', 'TG_BAN'));
 bot.command('ip_hack', (ctx) => handleCmd(ctx, '/ip_hack', 'IP_TRACE'));
-bot.command('fb_hack', (ctx) => handleCmd(ctx, '/fb_hack', 'FB_HACK'));
-bot.command('tiktok_hack', (ctx) => handleCmd(ctx, '/tiktok_hack', 'TIKTOK_HACK'));
 bot.command('invis_hell', (ctx) => handleCmd(ctx, '/invis_hell', 'INVISIBLE'));
 bot.command('delay_hell', (ctx) => handleCmd(ctx, '/delay_hell', 'DELAY'));
 bot.command('group_crash', (ctx) => handleCmd(ctx, '/group_crash', 'GROUP_CRASH'));
 bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
-// ================= START COMMAND - BEAUTIFIED MENU =================
+// ================= START COMMAND =================
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   const username = ctx.from.username || 'Unknown';
@@ -250,7 +311,7 @@ bot.start(async (ctx) => {
     await logToGroup(`🆕 NEW USER | ${userId} | @${username}`);
   }
 
-  // Build community buttons (2 columns)
+  // Build community buttons
   const communityRows = [];
   for (let i = 0; i < COMMUNITY_BUTTONS.length; i += 2) {
     const row = COMMUNITY_BUTTONS.slice(i, i+2).map(btn => Markup.button.url(btn.name, btn.url));
@@ -258,64 +319,117 @@ bot.start(async (ctx) => {
   }
 
   const keyboard = Markup.inlineKeyboard([
+    [Markup.button.callback('📜 VIEW COMMANDS', 'show_menu')],
     ...communityRows,
     [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')],
     [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
   ]);
 
-  // BEAUTIFIED HACKER MENU USING MARKDOWN CODEBLOCK
-  const menuText = 
-`⚡ *${BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM'} PANEL* ⚡
-` + '```' + `
-====== 🔥 VIRUS COMMANDS ======
-/droid_virus <ip>  -> Android Virus
-/ios_virus <ip>    -> iOS Virus
-/linux_virus <ip>  -> Linux Virus
-/pc_kill <ip>      -> PC Killer
-/destroy <ip>      -> Destroyer
+  const menuText = `┌─────────────────────────────────┐
+│ 💀 ${BOT_NAME} 💀 │
+├─────────────────────────────────┤
+│ 🔥 VIRUS                        │
+│ /droid_virus <ip>  - Android    │
+│ /ios_virus <ip>    - iOS        │
+│ /linux_virus <ip>  - Linux      │
+│ /pc_kill <ip>      - PC Killer  │
+│ /destroy <ip>      - Destroyer  │
+├─────────────────────────────────┤
+│ 🐛 BUGS                         │
+│ /infect_ill <x>    - Infect Ill │
+│ /triple_x <x>      - Triple X   │
+│ /ovia_load <x>     - Ovia Load  │
+│ /hate_you <x>      - Hate You   │
+│ /mini_kill <x>     - Mini Kill  │
+├─────────────────────────────────┤
+│ 💀 SOCIAL HACKS                  │
+│ /fb_hack <email>   - Facebook   │
+│ /tiktok_hack <user>- TikTok     │
+│ /twitter_hack <user>- Twitter   │
+│ /snap_hack <user>  - Snapchat   │
+│ /ban_wa <num>      - WhatsApp   │
+│ /ban_tg <user>     - Telegram   │
+│ /ip_hack <num>     - IP Trace   │
+├─────────────────────────────────┤
+│ 📱 WA TOOLS                     │
+│ /invis_hell <num>  - Invisible  │
+│ /delay_hell <num>  - Delay      │
+│ /group_crash <gc>  - Group Crash│
+├─────────────────────────────────┤
+│ 🤖 OTHER                        │
+│ /clone <token>     - Clone Bot  │
+├─────────────────────────────────┤
+│ 👑 OWNER                        │
+│ /addprem /delprem /broadcast    │
+│ /listusers /allusers /addadmin  │
+└─────────────────────────────────┘`;
 
-======= 🐛 BUG EXPLOITS =======
-/infect_ill <val>  -> Infect Ill
-/triple_x <val>    -> Triple X
-/ovia_load <val>   -> Ovia Load
-/hate_you <val>    -> Hate You
-/mini_kill <val>   -> Mini Kill
+  const welcomeMsg = `🔥 *${BOT_NAME}* 🔥
 
-====== 💀 SOCIAL EXPLOITS =====
-/ban_wa <num>      -> WhatsApp Ban
-/ban_tg <user>     -> Telegram Ban
-/ip_hack <ip>      -> IP Trace
-/fb_hack <email>   -> Facebook Hack
-/tiktok_hack <usr> -> TikTok Hack
+☠️ *WELCOME ${ctx.from.first_name || 'HACKER'}* ☠️
 
-======= 📱 WHATSAPP TOOLS =====
-/invis_hell <num>  -> Invisible
-/delay_hell <num>  -> Delay Inject
-/group_crash <gc>  -> Group Crash
+💀 *CLICK BUTTON BELOW FOR COMMANDS* 💀
 
-========= 🤖 UTILITIES ========
-/clone <token>     -> Clone Bot
-
-======= 👑 OWNER PRIVS ========
-/addprem  | /delprem  | /broadcast
-/addadmin | /deladmin | /listusers
-` + '```' + `
-*⚠️ SYSTEM STATUS: ONLINE & READY*`;
-
-  const welcomeMsg = `*┌────────────────────────┐*\n*🔥 WELCOME ${ctx.from.first_name ? ctx.from.first_name.toUpperCase() : 'HACKER'} 🔥*\n*☠️ INITIALIZING INTERFACE... ☠️*\n*└────────────────────────┘*`;
+⚡ *POWERED BY LORD SATANUS* ⚡`;
 
   try {
-    if (START_IMAGE) {
-      await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown' });
-    } else {
-      await ctx.reply(welcomeMsg, { parse_mode: 'Markdown' });
-    }
-    await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
+    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown', ...keyboard });
   } catch (error) {
-    // Universal Fallback if photo engine or text encounters issues
-    await ctx.reply(welcomeMsg, { parse_mode: 'Markdown' });
-    await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
+    await ctx.reply(welcomeMsg, { parse_mode: 'Markdown', ...keyboard });
   }
+});
+
+// ================= MENU BUTTON =================
+bot.action('show_menu', async (ctx) => {
+  await ctx.answerCbQuery('📜 Loading commands...');
+  
+  const menuText = `┌─────────────────────────────────┐
+│ 💀 ${BOT_NAME} 💀 │
+├─────────────────────────────────┤
+│ 🔥 VIRUS                        │
+│ /droid_virus <ip>  - Android    │
+│ /ios_virus <ip>    - iOS        │
+│ /linux_virus <ip>  - Linux      │
+│ /pc_kill <ip>      - PC Killer  │
+│ /destroy <ip>      - Destroyer  │
+├─────────────────────────────────┤
+│ 🐛 BUGS                         │
+│ /infect_ill <x>    - Infect Ill │
+│ /triple_x <x>      - Triple X   │
+│ /ovia_load <x>     - Ovia Load  │
+│ /hate_you <x>      - Hate You   │
+│ /mini_kill <x>     - Mini Kill  │
+├─────────────────────────────────┤
+│ 💀 SOCIAL HACKS                  │
+│ /fb_hack <email>   - Facebook   │
+│ /tiktok_hack <user>- TikTok     │
+│ /twitter_hack <user>- Twitter   │
+│ /snap_hack <user>  - Snapchat   │
+│ /ban_wa <num>      - WhatsApp   │
+│ /ban_tg <user>     - Telegram   │
+│ /ip_hack <num>     - IP Trace   │
+├─────────────────────────────────┤
+│ 📱 WA TOOLS                     │
+│ /invis_hell <num>  - Invisible  │
+│ /delay_hell <num>  - Delay      │
+│ /group_crash <gc>  - Group Crash│
+├─────────────────────────────────┤
+│ 🤖 OTHER                        │
+│ /clone <token>     - Clone Bot  │
+├─────────────────────────────────┤
+│ 👑 OWNER                        │
+│ /addprem /delprem /broadcast    │
+│ /listusers /allusers /addadmin  │
+└─────────────────────────────────┘`;
+
+  const menuKeyboard = Markup.inlineKeyboard([
+    [Markup.button.url('👥 MAIN GROUP', 'https://t.me/lordsatanusmaingc'), Markup.button.url('📢 MAIN CHANNEL', 'https://t.me/lordsatanusmainchannel')],
+    [Markup.button.url('🔥 RYOMEN TECH', 'https://t.me/RyomenTechtheuprising'), Markup.button.url('💀 FYT_13', 'https://t.me/FYT_13')],
+    [Markup.button.url('💰 EARNING BIT SATAN', 'https://t.me/earningbitsatan664'), Markup.button.url('⚡ HELL GUARD', 'https://t.me/hellgaurd666')],
+    [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
+  ]);
+
+  await ctx.reply(menuText, { parse_mode: 'Markdown', ...menuKeyboard });
 });
 
 // ================= PREMIUM CHECK =================
@@ -323,77 +437,77 @@ bot.action('check_premium', async (ctx) => {
   await ctx.answerCbQuery('💎 Checking...');
   const userId = ctx.from.id;
   if (isPremium(userId)) {
-    await ctx.reply(`┌─[ PREMIUM USER ]─┐\n├─ 👤 ID: ${userId}\n├─ 🔥 ALL TOOLS\n└─────────────────┘`, { parse_mode: 'Markdown' });
+    await ctx.reply(`⭐ *PREMIUM USER* ⭐\n👤 ID: ${userId}\n🔥 ALL TOOLS UNLOCKED`, { parse_mode: 'Markdown' });
   } else {
-    await ctx.reply(`┌─[ FREE USER ]─┐\n├─ 💎 ${PREMIUM_BOT}\n├─ 👑 ${OWNER_USERNAME}\n└───────────────┘`, { parse_mode: 'Markdown' });
+    await ctx.reply(`🔴 *FREE USER* 🔴\n💎 UPGRADE: ${PREMIUM_BOT}\n👑 OWNER: ${OWNER_USERNAME}`, { parse_mode: 'Markdown' });
   }
 });
 
 // ================= ADMIN COMMANDS =================
 bot.command('addadmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /addadmin <id>\n└────────────┘');
+  if (!uid) return ctx.reply('Usage: /addadmin <id>');
   adminIds.add(uid);
   saveAdmins();
-  ctx.reply(`┌─[ ADDED ]─┐\n├─ Admin: ${uid}\n└────────────┘`);
+  ctx.reply(`✅ Admin added: ${uid}`);
 });
 
 bot.command('deladmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /deladmin <id>\n└────────────┘');
-  if (uid === OWNER_ID) return ctx.reply('┌─[ ERROR ]─┐\n├─ Cannot remove owner\n└────────────┘');
+  if (!uid) return ctx.reply('Usage: /deladmin <id>');
+  if (uid === OWNER_ID) return ctx.reply('❌ Cannot remove owner');
   adminIds.delete(uid);
   saveAdmins();
-  ctx.reply(`┌─[ REMOVED ]─┐\n├─ Admin: ${uid}\n└──────────────┘`);
+  ctx.reply(`❌ Admin removed: ${uid}`);
 });
 
 bot.command('addprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /addprem <id>\n└────────────┘');
+  if (!uid) return ctx.reply('Usage: /addprem <id>');
   premiumUsers.add(uid);
   savePremiumUsers();
-  ctx.reply(`┌─[ ADDED ]─┐\n├─ Premium: ${uid}\n└────────────┘`);
+  ctx.reply(`✅ Premium added: ${uid}`);
 });
 
 bot.command('delprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /delprem <id>\n└────────────┘');
+  if (!uid) return ctx.reply('Usage: /delprem <id>');
   premiumUsers.delete(uid);
   savePremiumUsers();
-  ctx.reply(`┌─[ REMOVED ]─┐\n├─ Premium: ${uid}\n└──────────────┘`);
+  ctx.reply(`❌ Premium removed: ${uid}`);
 });
 
 bot.command('broadcast', async (ctx) => {
-  if (!isAdmin(ctx.from.id)) return ctx.reply('┌─[ DENIED ]─┐\n├─ Admin only\n└────────────┘');
+  if (!isAdmin(ctx.from.id)) return ctx.reply('🔒 ADMIN ONLY');
   const msg = ctx.message.text.split(' ').slice(1).join(' ');
-  if (!msg) return ctx.reply('┌─[ USAGE ]─┐\n├─ /broadcast <msg>\n└────────────┘');
+  if (!msg) return ctx.reply('Usage: /broadcast <message>');
   let sent = 0;
   for (const uid of allUsers) {
-    try { await bot.telegram.sendMessage(uid, `📢 BROADCAST\n\n${msg}`); sent++; } catch(e) {}
+    try { await bot.telegram.sendMessage(uid, `📢 *BROADCAST*\n\n${msg}`, { parse_mode: 'Markdown' }); sent++; } catch(e) {}
     await new Promise(r => setTimeout(r, 50));
   }
-  ctx.reply(`┌─[ SENT ]─┐\n├─ To: ${sent} users\n└────────────┘`);
+  ctx.reply(`✅ Sent to ${sent} users`);
 });
 
 bot.command('listusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
-  if (premiumUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No premium users\n└────────────┘');
-  ctx.reply(`┌─[ PREMIUM USERS ]─┐\n├─ ${[...premiumUsers].join('\n├─ ')}\n└───────────────────┘`);
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
+  if (premiumUsers.size === 0) return ctx.reply('No premium users');
+  ctx.reply(`👑 *Premium Users:*\n${[...premiumUsers].join('\n')}`, { parse_mode: 'Markdown' });
 });
 
 bot.command('allusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
-  if (allUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No users\n└───────────────┘');
-  ctx.reply(`┌─[ ALL USERS ]─┐\n├─ ${[...allUsers].join('\n├─ ')}\n└───────────────┘`);
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
+  if (allUsers.size === 0) return ctx.reply('No users');
+  ctx.reply(`👥 *All Users:*\n${[...allUsers].join('\n')}`, { parse_mode: 'Markdown' });
 });
 
 // ================= LAUNCH =================
 bot.launch().then(() => {
-  console.log(`☠️ ${BOT_NAME || 'BOT'} RUNNING ☠️`);
+  console.log(`☠️ ${BOT_NAME} RUNNING ☠️`);
   console.log(`✅ Owner: ${OWNER_USERNAME}`);
   console.log(`✅ Premium: ${premiumUsers.size} | Total: ${allUsers.size}`);
 }).catch(err => console.error('Launch error:', err));
