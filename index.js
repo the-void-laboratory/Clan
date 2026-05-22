@@ -288,44 +288,7 @@ bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
 // ================= MENU GENERATOR DEFINITION =================
 const getBeautifiedMenuText = () => {
-  return `⚡ *${BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM'} SYSTEM INTERFACE* ⚡
-` + '```' + `
-====== 🔥 VIRUS COMMANDS ======
-/droid_virus <ip>  -> Android Virus
-/ios_virus <ip>    -> iOS Virus
-/linux_virus <ip>  -> Linux Virus
-/pc_kill <ip>      -> PC Killer
-/destroy <ip>      -> Destroyer
-
-======= 🐛 BUG EXPLOITS =======
-/infect_ill <val>  -> Infect Ill
-/triple_x <val>    -> Triple X
-/ovia_load <val>   -> Ovia Load
-/hate_you <val>    -> Hate You
-/mini_kill <val>   -> Mini Kill
-
-====== 💀 SOCIAL EXPLOITS =====
-/fb_hack <email>   -> Facebook Hack
-/tiktok_hack <usr> -> TikTok Hack
-/twitter_hack <usr>-> Twitter Hack
-/snap_hack <usr>   -> Snapchat Hack
-/ban_wa <num>      -> WhatsApp Ban
-/ban_tg <user>     -> Telegram Ban
-/ip_hack <num>     -> IP Trace Location
-
-======= 📱 WHATSAPP TOOLS =====
-/invis_hell <num>  -> Invisible Mode
-/delay_hell <num>  -> Delay Injector
-/group_crash <gc>  -> Group Crasher
-
-========= 🤖 UTILITIES ========
-/clone <token>     -> Clone Bot Main
-
-======= 👑 OWNER PRIVS ========
-/addprem  | /delprem  | /broadcast
-/addadmin | /deladmin | /listusers
-` + '```' + `
-*⚠️ MAINFRAME STATUS: ONLINE & READY*`;
+  return `⚡ *${BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM'} SYSTEM INTERFACE* ⚡\n\`\`\`\n====== 🔥 VIRUS COMMANDS ======\n/droid_virus <ip>  -> Android Virus\n/ios_virus <ip>    -> iOS Virus\n/linux_virus <ip>  -> Linux Virus\n/pc_kill <ip>      -> PC Killer\n/destroy <ip>      -> Destroyer\n\n======= 🐛 BUG EXPLOITS =======\n/infect_ill <val>  -> Infect Ill\n/triple_x <val>    -> Triple X\n/ovia_load <val>   -> Ovia Load\n/hate_you <val>    -> Hate You\n/mini_kill <val>   -> Mini Kill\n\n====== 💀 SOCIAL EXPLOITS =====\n/fb_hack <email>   -> Facebook Hack\n/tiktok_hack <usr> -> TikTok Hack\n/twitter_hack <usr>-> Twitter Hack\n/snap_hack <usr>   -> Snapchat Hack\n/ban_wa <num>      -> WhatsApp Ban\n/ban_tg <user>     -> Telegram Ban\n/ip_hack <num>     -> IP Trace Location\n\n======= 📱 WHATSAPP TOOLS =====\n/invis_hell <num>  -> Invisible Mode\n/delay_hell <num>  -> Delay Injector\n/group_crash <gc>  -> Group Crasher\n\n========= 🤖 UTILITIES ========\n/clone <token>     -> Clone Bot Main\n\n======= 👑 OWNER PRIVS ========\n/addprem  | /delprem  | /broadcast\n/addadmin | /deladmin | /listusers\n\`\`\`\n*⚠️ MAINFRAME STATUS: ONLINE & READY*`;
 };
 
 // ================= START COMMAND =================
@@ -404,7 +367,7 @@ bot.command('deladmin', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
   const uid = parseInt(ctx.message.text.split(' ')[1]);
   if (!uid) return ctx.reply('ℹ️ *Usage:* \`/deladmin <id>\`', { parse_mode: 'Markdown' });
-  if (uid === OWNER_ID) return ctx.reply('❌ *Operation aborted:* Primary Owner cannot be stripped of permissions.', { parse_mode: 'Markdown' });
+  if (uid === OWNER_ID) return ctx.reply('❌ *Operation aborted:* Primary Owner cannot be stripped of privileges.', { parse_mode: 'Markdown' });
   adminIds.delete(uid);
   saveAdmins();
   ctx.reply(`❌ *Administrative privileges revoked from user \`${uid}\`.*`, { parse_mode: 'Markdown' });
