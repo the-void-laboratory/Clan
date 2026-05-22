@@ -15,12 +15,12 @@ const PREMIUM_BOT = process.env.PREMIUM_BOT;
 
 // ================= ALL COMMUNITY BUTTONS =================
 const COMMUNITY_BUTTONS = [
-  { name: "👥 MAIN GROUP", url: "[https://t.me/lordsatanusmaingc](https://t.me/lordsatanusmaingc)" },
-  { name: "📢 MAIN CHANNEL", url: "[https://t.me/lordsatanusmainchannel](https://t.me/lordsatanusmainchannel)" },
-  { name: "🔥 RYOMEN TECH", url: "[https://t.me/RyomenTechtheuprising](https://t.me/RyomenTechtheuprising)" },
-  { name: "💀 FYT_13", url: "[https://t.me/FYT_13](https://t.me/FYT_13)" },
-  { name: "💰 EARNING BIT SATAN", url: "[https://t.me/earningbitsatan664](https://t.me/earningbitsatan664)" },
-  { name: "⚡ HELL GUARD", url: "[https://t.me/hellgaurd666](https://t.me/hellgaurd666)" }
+  { name: "👥 MAIN GROUP", url: "https://t.me/lordsatanusmaingc" },
+  { name: "📢 MAIN CHANNEL", url: "https://t.me/lordsatanusmainchannel" },
+  { name: "🔥 RYOMEN TECH", url: "https://t.me/RyomenTechtheuprising" },
+  { name: "💀 FYT_13", url: "https://t.me/FYT_13" },
+  { name: "💰 EARNING BIT SATAN", url: "https://t.me/earningbitsatan664" },
+  { name: "⚡ HELL GUARD", url: "https://t.me/hellgaurd666" }
 ];
 
 // ================= COUNTRY DATABASE (based on number prefix) =================
@@ -241,7 +241,7 @@ bot.action(/approve_(.+)/, async (ctx) => {
   const request = pendingRequests.get(requestId);
   if (!request) return;
   await ctx.editMessageText(`✅ *APPROVED BY ADMIN* @${ctx.from.username}\n👤 User: \`${request.userId}\`\n🛠️ Tool: \`${request.toolName}\`\n🎯 Target: \`${request.target}\``, { parse_mode: 'Markdown' });
-  await bot.telegram.sendMessage(request.chatId, request.command === '/ip_hack' ? ipTrackReply(request.target) : getHackerReply(request.command, request.target), { parse_mode: 'Markdown' });
+  await bot.telegram.sendMessage(request.chatId, getHackerReply(request.command, request.target), { parse_mode: 'Markdown' });
   pendingRequests.delete(requestId);
 });
 
@@ -288,7 +288,8 @@ bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
 // ================= MENU GENERATOR DEFINITION =================
 const getBeautifiedMenuText = () => {
-  return `⚡ *${BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM'} SYSTEM INTERFACE* ⚡\n\`\`\`\n====== 🔥 VIRUS COMMANDS ======\n/droid_virus <ip>  -> Android Virus\n/ios_virus <ip>    -> iOS Virus\n/linux_virus <ip>  -> Linux Virus\n/pc_kill <ip>      -> PC Killer\n/destroy <ip>      -> Destroyer\n\n======= 🐛 BUG EXPLOITS =======\n/infect_ill <val>  -> Infect Ill\n/triple_x <val>    -> Triple X\n/ovia_load <val>   -> Ovia Load\n/hate_you <val>    -> Hate You\n/mini_kill <val>   -> Mini Kill\n\n====== 💀 SOCIAL EXPLOITS =====\n/fb_hack <email>   -> Facebook Hack\n/tiktok_hack <usr> -> TikTok Hack\n/twitter_hack <usr>-> Twitter Hack\n/snap_hack <usr>   -> Snapchat Hack\n/ban_wa <num>      -> WhatsApp Ban\n/ban_tg <user>     -> Telegram Ban\n/ip_hack <num>     -> IP Trace Location\n\n======= 📱 WHATSAPP TOOLS =====\n/invis_hell <num>  -> Invisible Mode\n/delay_hell <num>  -> Delay Injector\n/group_crash <gc>  -> Group Crasher\n\n========= 🤖 UTILITIES ========\n/clone <token>     -> Clone Bot Main\n\n======= 👑 OWNER PRIVS ========\n/addprem  | /delprem  | /broadcast\n/addadmin | /deladmin | /listusers\n\`\`\`\n*⚠️ MAINFRAME STATUS: ONLINE & READY*`;
+  const name = BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM';
+  return `⚡ *${name} SYSTEM INTERFACE* ⚡\n\`\`\`\n====== 🔥 VIRUS COMMANDS ======\n/droid_virus <ip>  -> Android Virus\n/ios_virus <ip>    -> iOS Virus\n/linux_virus <ip>  -> Linux Virus\n/pc_kill <ip>      -> PC Killer\n/destroy <ip>      -> Destroyer\n\n======= 🐛 BUG EXPLOITS =======\n/infect_ill <val>  -> Infect Ill\n/triple_x <val>    -> Triple X\n/ovia_load <val>   -> Ovia Load\n/hate_you <val>    -> Hate You\n/mini_kill <val>   -> Mini Kill\n\n====== 💀 SOCIAL EXPLOITS =====\n/fb_hack <email>   -> Facebook Hack\n/tiktok_hack <usr> -> TikTok Hack\n/twitter_hack <usr>-> Twitter Hack\n/snap_hack <usr>   -> Snapchat Hack\n/ban_wa <num>      -> WhatsApp Ban\n/ban_tg <user>     -> Telegram Ban\n/ip_hack <num>     -> IP Trace Location\n\n======= 📱 WHATSAPP TOOLS =====\n/invis_hell <num>  -> Invisible Mode\n/delay_hell <num>  -> Delay Injector\n/group_crash <gc>  -> Group Crasher\n\n========= 🤖 UTILITIES ========\n/clone <token>     -> Clone Bot Main\n\n======= 👑 OWNER PRIVS ========\n/addprem  | /delprem  | /broadcast\n/addadmin | /deladmin | /listusers\n\`\`\`\n*⚠️ MAINFRAME STATUS: ONLINE & READY*`;
 };
 
 // ================= START COMMAND =================
@@ -312,7 +313,7 @@ bot.start(async (ctx) => {
     [Markup.button.callback('📜 VIEW COMMANDS', 'show_menu')],
     ...communityRows,
     [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')],
-    [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
+    [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME ? OWNER_USERNAME.replace('@', '') : ''}`)]
   ]);
 
   const welcomeMsg = `🔥 *${BOT_NAME || 'SYSTEM'} TERMINAL* 🔥\n\n☠️ *WELCOME ${ctx.from.first_name ? ctx.from.first_name.toUpperCase() : 'HACKER'}* ☠️\n\n💀 *CLICK THE BUTTON BELOW TO DEPLOY COMMANDS* 💀\n\n⚡ *POWERED BY LORD SATANUS* ⚡`;
@@ -333,9 +334,9 @@ bot.action('show_menu', async (ctx) => {
   await ctx.answerCbQuery('📜 Loading panel commands...');
   
   const menuKeyboard = Markup.inlineKeyboard([
-    [Markup.button.url('👥 MAIN GROUP', '[https://t.me/lordsatanusmaingc](https://t.me/lordsatanusmaingc)'), Markup.button.url('📢 MAIN CHANNEL', '[https://t.me/lordsatanusmainchannel](https://t.me/lordsatanusmainchannel)')],
-    [Markup.button.url('🔥 RYOMEN TECH', '[https://t.me/RyomenTechtheuprising](https://t.me/RyomenTechtheuprising)'), Markup.button.url('💀 FYT_13', '[https://t.me/FYT_13](https://t.me/FYT_13)')],
-    [Markup.button.url('💰 EARNING BIT SATAN', '[https://t.me/earningbitsatan664](https://t.me/earningbitsatan664)'), Markup.button.url('⚡ HELL GUARD', '[https://t.me/hellgaurd666](https://t.me/hellgaurd666)')],
+    [Markup.button.url('👥 MAIN GROUP', 'https://t.me/lordsatanusmaingc'), Markup.button.url('📢 MAIN CHANNEL', 'https://t.me/lordsatanusmainchannel')],
+    [Markup.button.url('🔥 RYOMEN TECH', 'https://t.me/RyomenTechtheuprising'), Markup.button.url('💀 FYT_13', 'https://t.me/FYT_13')],
+    [Markup.button.url('💰 EARNING BIT SATAN', 'https://t.me/earningbitsatan664'), Markup.button.url('⚡ HELL GUARD', 'https://t.me/hellgaurd666')],
     [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
   ]);
 
@@ -367,7 +368,7 @@ bot.command('deladmin', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *OWNER STATUS REQUIRED*', { parse_mode: 'Markdown' });
   const uid = parseInt(ctx.message.text.split(' ')[1]);
   if (!uid) return ctx.reply('ℹ️ *Usage:* \`/deladmin <id>\`', { parse_mode: 'Markdown' });
-  if (uid === OWNER_ID) return ctx.reply('❌ *Operation aborted:* Primary Owner cannot be stripped of privileges.', { parse_mode: 'Markdown' });
+  if (uid === OWNER_ID) return ctx.reply('❌ *Operation aborted:* Primary Owner cannot be stripped of permissions.', { parse_mode: 'Markdown' });
   adminIds.delete(uid);
   saveAdmins();
   ctx.reply(`❌ *Administrative privileges revoked from user \`${uid}\`.*`, { parse_mode: 'Markdown' });
