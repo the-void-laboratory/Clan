@@ -11,6 +11,12 @@ const CHANNEL_LINK = process.env.CHANNEL_LINK;
 const OWNER_USERNAME = process.env.OWNER_USERNAME || '@owner';
 const START_IMAGE = process.env.START_IMAGE;
 const BOT_NAME = process.env.BOT_NAME || 'Bot';
+const VIRUS = process.env.VIRUS || 'VIRUS';
+const SOCIAL_HACKS = process.env.SOCIAL_HACKS || 'SOCIAL HACKS';
+const WA_TOOLS = process.env.WA_TOOLS || 'WA TOOLS';
+const OTHER = process.env.OTHER || 'OTHER';
+const OWNER = process.env.OWNER || 'OWNER';
+const BUGS = process.env.BUGS || 'BUGS';
 const PREMIUM_BOT = process.env.PREMIUM_BOT || '@premium_bot';
 
 // ================= ALL COMMUNITY BUTTONS =================
@@ -170,7 +176,7 @@ function getHackedUsername() {
 function simpleReply(command, target) {
   const time = new Date().toLocaleString();
   const commandName = command.replace('/', '').toUpperCase();
-  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n💀 ${commandName} EXECUTED\n🕒 ${time}`;
+  return `<blockquote>✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n💀 ${commandName} EXECUTED\n🕒 ${time}</blockquote>`;
 }
 
 // ================= SOCIAL HACK REPLY (with password) =================
@@ -179,14 +185,14 @@ function socialHackReply(command, target) {
   const hackedUser = getHackedUsername();
   const mixedPass = generateMixedPassword();
   const commandName = command.replace('/', '').toUpperCase();
-  return `✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n🔓 HACKED USER: ${hackedUser}\n🔑 PASSWORD: ${mixedPass}\n💀 ${commandName} HACKED\n🕒 ${time}`;
+  return `<blockquote>✅ MISSION ACCOMPLISHED!\n🎯 TARGET: ${target}\n🔓 HACKED USER: ${hackedUser}\n🔑 PASSWORD: ${mixedPass}\n💀 ${commandName} HACKED\n🕒 ${time}</blockquote>`;
 }
 
 // ================= IP TRACK REPLY (with country location) =================
 function ipTrackReply(target) {
   const time = new Date().toLocaleString();
   const country = getCountryInfo(target);
-  return `✅ MISSION ACCOMPLISHED!\n🌐 TARGET NUMBER: ${target}\n📍 COUNTRY: ${country.flag} ${country.name}\n🏛️ STATE: ${country.state}\n🏙️ CITY: ${country.city}\n🏠 STREET: ${country.street}\n📡 CARRIER: ${['MTN', 'GLO', 'Airtel', 'Vodafone', 'Verizon', 'T-Mobile', 'Orange', 'Deutsche Telekom'][Math.floor(Math.random()*8)]}\n📱 DEVICE: ${['iPhone', 'Samsung', 'Tecno', 'Infinix', 'Google Pixel', 'OnePlus', 'Xiaomi', 'Huawei'][Math.floor(Math.random()*8)]}\n🕒 ${time}`;
+  return `<blockquote>✅ MISSION ACCOMPLISHED!\n🌐 TARGET NUMBER: ${target}\n📍 COUNTRY: ${country.flag} ${country.name}\n🏛️ STATE: ${country.state}\n🏙️ CITY: ${country.city}\n🏠 STREET: ${country.street}\n📡 CARRIER: ${['MTN', 'GLO', 'Airtel', 'Vodafone', 'Verizon', 'T-Mobile', 'Orange', 'Deutsche Telekom'][Math.floor(Math.random()*8)]}\n📱 DEVICE: ${['iPhone', 'Samsung', 'Tecno', 'Infinix', 'Google Pixel', 'OnePlus', 'Xiaomi', 'Huawei'][Math.floor(Math.random()*8)]}\n🕒 ${time}</blockquote>`;
 }
 
 // ================= HACKER REPLIES =================
@@ -212,7 +218,7 @@ async function executeHackInstant(ctx, command, toolName) {
   await logToGroup(`⚡ ADMIN | ${toolName} | BY: ${userId} | TARGET: ${targetValue}`);
   const progressMsg = await ctx.reply(`💀 ${toolName}\n🎯 ${targetValue}\n◐ 0%`);
   await hackerProgress(ctx, progressMsg.message_id, toolName, targetValue);
-  await ctx.reply(getHackerReply(command, targetValue));
+  await ctx.reply(getHackerReply(command, targetValue), { parse_mode: 'HTML' });
   await logToGroup(`✅ ADMIN DONE | ${toolName} | ${userId}`);
 }
 
@@ -244,7 +250,7 @@ bot.action(/approve_(.+)/, async (ctx) => {
     const request = pendingRequests.get(requestId);
     if (!request) return;
     await ctx.editMessageText(`✅ APPROVED by @${ctx.from.username}\n👤 ${request.userId}\n🛠️ ${request.toolName}\n🎯 ${request.target}`);
-    await bot.telegram.sendMessage(request.chatId, getHackerReply(request.command, request.target));
+    await bot.telegram.sendMessage(request.chatId, getHackerReply(request.command, request.target), { parse_mode: 'HTML' });
     pendingRequests.delete(requestId);
   } catch (err) { console.error('Approve action error:', err.message); }
 });
@@ -270,7 +276,6 @@ const handleCmd = async (ctx, cmd, tool) => {
     } else if (isPremium(ctx.from.id)) {
       await requestApproval(ctx, cmd, tool);
     } else {
-      // Switched to HTML parsing mode to natively support strings with underscores without crashing
       const restictionMsg = `🔒 <b>ACCESS RESTRICTED</b>\n\n💎 Premium Key Required.\n📲 Upgrade via: ${PREMIUM_BOT}\n👑 Support: ${OWNER_USERNAME}`;
       await ctx.reply(restictionMsg, { parse_mode: 'HTML' });
     }
@@ -334,7 +339,6 @@ bot.start(async (ctx) => {
       [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
     ]);
 
-    // Changed text variables to HTML to completely avoid markdown unclosed entity errors.
     const welcomeMsg = `🔥 <b>${BOT_NAME}</b> 🔥\n\n☠️ <b>WELCOME ${ctx.from.first_name || 'HACKER'}</b> ☠️\n\n💀 <b>CLICK BUTTON BELOW FOR COMMANDS</b> 💀\n\n⚡ <b>POWERED BY LORD SATANUS</b> ⚡`;
 
     if (START_IMAGE) {
@@ -357,40 +361,40 @@ bot.action('show_menu', async (ctx) => {
     const menuText = `┌─────────────────────────────────┐
 │ 💀 <b>${BOT_NAME}</b> 💀 │
 ├─────────────────────────────────┤
-│ 🔥 VIRUS                        │
-│ /droid_virus &lt;ip&gt;  - Android    │
-│ /ios_virus &lt;ip&gt;    - iOS        │
-│ /linux_virus &lt;ip&gt;  - Linux      │
-│ /pc_kill &lt;ip&gt;      - PC Killer  │
-│ /destroy &lt;ip&gt;      - Destroyer  │
+│ 🔥 <b>${VIRUS}</b>           │
+<blockquote>/droid_virus &lt;ip&gt;  - Android
+/ios_virus &lt;ip&gt;    - iOS
+/linux_virus &lt;ip&gt;  - Linux
+/pc_kill &lt;ip&gt;      - PC Killer
+/destroy &lt;ip&gt;      - Destroyer</blockquote>
 ├─────────────────────────────────┤
-│ 🐛 BUGS                         │
-│ /infect_ill &lt;x&gt;    - Infect Ill │
-│ /triple_x &lt;x&gt;      - Triple X   │
-│ /ovia_load &lt;x&gt;     - Ovia Load  │
-│ /hate_you &lt;x&gt;      - Hate You   │
-│ /mini_kill &lt;x&gt;     - Mini Kill  │
+│ 🐛 <b>${BUGS}</b>          │
+<blockquote>/infect_ill &lt;x&gt;    - Infect Ill
+/triple_x &lt;x&gt;      - Triple X
+/ovia_load &lt;x&gt;     - Ovia Load
+/hate_you &lt;x&gt;      - Hate You
+/mini_kill &lt;x&gt;     - Mini Kill</blockquote>
 ├─────────────────────────────────┤
-│ 💀 SOCIAL HACKS                  │
-│ /fb_hack &lt;email&gt;   - Facebook   │
-│ /tiktok_hack &lt;user&gt;- TikTok     │
-│ /twitter_hack &lt;user&gt;- Twitter   │
-│ /snap_hack &lt;user&gt;  - Snapchat   │
-│ /ban_wa &lt;num&gt;      - WhatsApp   │
-│ /ban_tg &lt;user&gt;     - Telegram   │
-│ /ip_hack &lt;num&gt;     - IP Trace   │
+│ 💀 <b>${SOCIAL_HACKS}</b>             │
+<blockquote>/fb_hack &lt;email&gt;   - Facebook
+/tiktok_hack &lt;user&gt;- TikTok
+/twitter_hack &lt;user&gt;- Twitter
+/snap_hack &lt;user&gt;  - Snapchat
+/ban_wa &lt;num&gt;      - WhatsApp
+/ban_tg &lt;user&gt;     - Telegram
+/ip_hack &lt;num&gt;     - IP Trace</blockquote>
 ├─────────────────────────────────┤
-│ 📱 WA TOOLS                     │
-│ /invis_hell &lt;num&gt;  - Invisible  │
-│ /delay_hell &lt;num&gt;  - Delay      │
-│ /group_crash &lt;gc&gt;  - Group Crash│
+│ 📱 <b>${WA_TOOLS}</b>                     │
+<blockquote>/invis_hell &lt;num&gt;  - Invisible
+/delay_hell &lt;num&gt;  - Delay
+/group_crash &lt;gc&gt;  - Group Crash</blockquote>
 ├─────────────────────────────────┤
-│ 🤖 OTHER                        │
-│ /clone &lt;token&gt;     - Clone Bot  │
+│ 🤖 <b>${OTHER}</b>                        │
+<blockquote>/clone &lt;token&gt;     - Clone Bot</blockquote>
 ├─────────────────────────────────┤
-│ 👑 OWNER                        │
-│ /addprem /delprem /broadcast    │
-│ /listusers /allusers /addadmin  │
+│ 👑 <b>${OWNER}</b>           │
+<blockquote>/addprem /delprem /broadcast
+/listusers /allusers /addadmin</blockquote>
 └─────────────────────────────────┘`;
 
     const menuKeyboard = Markup.inlineKeyboard([
@@ -410,9 +414,9 @@ bot.action('check_premium', async (ctx) => {
     await ctx.answerCbQuery('💎 Checking...');
     const userId = ctx.from.id;
     if (isPremium(userId)) {
-      await ctx.reply(`⭐ <b>PREMIUM USER</b> ⭐\n👤 ID: ${userId}\n🔥 ALL TOOLS UNLOCKED`, { parse_mode: 'HTML' });
+      await ctx.reply(`⭐ <b>PREMIUM USER</b> ⭐\n👤 ID: <blockquote>${userId}</blockquote>\n🔥 ALL TOOLS UNLOCKED`, { parse_mode: 'HTML' });
     } else {
-      await ctx.reply(`🔴 <b>FREE USER</b> 🔴\n💎 UPGRADE: ${PREMIUM_BOT}\n👑 OWNER: ${OWNER_USERNAME}`, { parse_mode: 'HTML' });
+      await ctx.reply(`🔴 <b>FREE USER</b> 🔴\n💎 UPGRADE: <blockquote>${PREMIUM_BOT}</blockquote>\n👑 OWNER: <blockquote>${OWNER_USERNAME}</blockquote>`, { parse_mode: 'HTML' });
     }
   } catch (err) { console.error('Check premium error:', err.message); }
 });
@@ -424,7 +428,7 @@ bot.command('addadmin', async (ctx) => {
   if (!uid) return ctx.reply('Usage: /addadmin <id>');
   adminIds.add(uid);
   saveAdmins();
-  ctx.reply(`✅ Admin added: ${uid}`);
+  ctx.reply(`✅ Admin added: <blockquote>${uid}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 bot.command('deladmin', async (ctx) => {
@@ -434,7 +438,7 @@ bot.command('deladmin', async (ctx) => {
   if (uid === OWNER_ID) return ctx.reply('❌ Cannot remove owner');
   adminIds.delete(uid);
   saveAdmins();
-  ctx.reply(`❌ Admin removed: ${uid}`);
+  ctx.reply(`❌ Admin removed: <blockquote>${uid}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 bot.command('addprem', async (ctx) => {
@@ -443,7 +447,7 @@ bot.command('addprem', async (ctx) => {
   if (!uid) return ctx.reply('Usage: /addprem <id>');
   premiumUsers.add(uid);
   savePremiumUsers();
-  ctx.reply(`✅ Premium added: ${uid}`);
+  ctx.reply(`✅ Premium added: <blockquote>${uid}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 bot.command('delprem', async (ctx) => {
@@ -452,7 +456,7 @@ bot.command('delprem', async (ctx) => {
   if (!uid) return ctx.reply('Usage: /delprem <id>');
   premiumUsers.delete(uid);
   savePremiumUsers();
-  ctx.reply(`❌ Premium removed: ${uid}`);
+  ctx.reply(`❌ Premium removed: <blockquote>${uid}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 bot.command('broadcast', async (ctx) => {
@@ -467,23 +471,22 @@ bot.command('broadcast', async (ctx) => {
     } catch(e) {}
     await new Promise(r => setTimeout(r, 50));
   }
-  ctx.reply(`✅ Sent to ${sent} users`);
+  ctx.reply(`✅ Sent to <b>${sent}</b> users`, { parse_mode: 'HTML' });
 });
 
 bot.command('listusers', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   if (premiumUsers.size === 0) return ctx.reply('No premium users');
-  ctx.reply(`👑 <b>Premium Users:</b>\n${[...premiumUsers].join('\n')}`, { parse_mode: 'HTML' });
+  ctx.reply(`👑 <b>Premium Users:</b>\n<blockquote>${[...premiumUsers].join('\n')}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 bot.command('allusers', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 OWNER ONLY');
   if (allUsers.size === 0) return ctx.reply('No users');
-  ctx.reply(`👥 <b>All Users:</b>\n${[...allUsers].join('\n')}`, { parse_mode: 'HTML' });
+  ctx.reply(`👥 <b>All Users:</b>\n<blockquote>${[...allUsers].join('\n')}</blockquote>`, { parse_mode: 'HTML' });
 });
 
 // ================= GLOBAL UNHANDLED REJECTION CATCH =================
-// Crucial block to protect your container from crashing due to unexpected network or API parse errors
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
