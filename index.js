@@ -3,15 +3,23 @@ const { Telegraf, Markup } = require('telegraf');
 const fs = require('fs');
 
 // ================= FANCY FONT STYLES =================
-const fancy = {
-  title: (t) => t.split('').map(c => '𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅'.split('')['ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(c)] || c).join(''),
-  bold: (t) => `*${t}*`,
-  glitch: (t) => `̸${t}̸`,
-  hacker: (t) => `[ ${t} ]`,
-  arrow: (t) => `➡️ ${t}`,
+const style = {
+  // Glitch/Strikethrough style for headers
+  glitch: (t) => t.split('').join('̸'),
+  // Small caps style
+  small: (t) => t.toUpperCase(),
+  // Boxed style for replies
+  box: (t) => `┌─[ ${t} ]─┐`,
+  // Arrow style
+  arrow: (t) => `➤ ${t}`,
+  // Skull style for danger
   skull: (t) => `💀 ${t} 💀`,
+  // Fire style for success
   fire: (t) => `🔥 ${t} 🔥`,
-  box: (t) => `┌─────────────┐\n│ ${t} │\n└─────────────┘`
+  // Hacker code style
+  code: (t) => `[${t}]`,
+  // Compact box for replies
+  replyBox: (t) => `├─ ${t} ─┤`
 };
 
 // ================= CONFIG FROM .env =================
@@ -93,48 +101,56 @@ async function logToGroup(message) {
 
 // ================= PROGRESS FUNCTION =================
 async function hackerProgress(ctx, messageId, toolName, target) {
-  const steps = ['◐ 0% 🤖', '◓ 15% 🔍', '◑ 30% ⚡', '◒ 45% 💀', '◐ 60% 🎯', '◓ 75% 🔓', '◑ 90% ✅', '✅ 100% ☠️'];
+  const steps = ['◐ 0%', '◓ 15%', '◑ 30%', '◒ 45%', '◐ 60%', '◓ 75%', '◑ 90%', '✅ 100%'];
   for (const step of steps) {
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 300));
     try {
       await bot.telegram.editMessageText(ctx.chat.id, messageId, null,
-        `╔═══════════════════════════╗\n║ 🔥 ${toolName}\n║ 🎯 ${target}\n║ ⚡ ${step}\n╚═══════════════════════════╝`);
+        `┌─[ ${toolName} ]─┐\n├─ 🎯 ${target}\n├─ ⚡ ${step}\n└─────────────┘`);
     } catch(e) {}
   }
 }
 
-// ================= HACKER REPLIES =================
-function getHackerReply(command, target) {
+// ================= FANCY HACKER REPLY STYLE =================
+function fancyReply(command, target, status, extra = '') {
   const time = new Date().toLocaleString();
+  return `┌─[ ${command.toUpperCase()} ]─┐
+├─ 🎯 ${target}
+├─ 🔥 ${status}
+${extra ? `├─ 💀 ${extra}\n` : ''}├─ 🕒 ${time}
+└─────────────────┘`;
+}
+
+function getHackerReply(command, target) {
   const randomPass = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
     let pass = '';
-    for(let i = 0; i < 12; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+    for(let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
     return pass;
   };
 
   const replies = {
-    '/droid_virus': `╔══════════════════════════════════╗\n║ 🤖 ANDROID VIRUS DEPLOYED 🤖 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: SYSTEM INFECTED\n║ 💀 EFFECT: REMOTE ACCESS GRANTED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/ios_virus': `╔══════════════════════════════════╗\n║ 📱 iOS VIRUS DEPLOYED 📱 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: KERNEL EXPLOITED\n║ 💀 EFFECT: FULL CONTROL\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/linux_virus': `╔══════════════════════════════════╗\n║ 🐧 LINUX VIRUS DEPLOYED 🐧 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: ROOTKIT INSTALLED\n║ 💀 EFFECT: PERSISTENT BACKDOOR\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/pc_kill': `╔══════════════════════════════════╗\n║ 💀 PC KILLER ACTIVATED 💀 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: SYSTEM BRICKED\n║ 💀 EFFECT: PERMANENT DAMAGE\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/destroy': `╔══════════════════════════════════╗\n║ 💀💀💀 SYSTEM DESTROYER 💀💀💀 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: COMPLETE ANNIHILATION\n║ 💀 EFFECT: DATA WIPED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/infect_ill': `╔══════════════════════════════════╗\n║ 🦠 INFECT ILL DEPLOYED 🦠 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: SPREADING MALWARE\n║ 💀 EFFECT: FULL DEVICE INFECTION\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/triple_x': `╔══════════════════════════════════╗\n║ 🔞 TRIPLE X BUG ACTIVATED 🔞 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: ADULT CONTENT FLOOD\n║ 💀 EFFECT: NOTIFICATION SPAM\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/ovia_load': `╔══════════════════════════════════╗\n║ ⚡ OVIA LOAD DEPLOYED ⚡ ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: OVERLOAD INJECTED\n║ 💀 EFFECT: CPU 100% USAGE\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/hate_you': `╔══════════════════════════════════╗\n║ 💢 HATE YOU BUG DEPLOYED 💢 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: EMOTIONAL DAMAGE\n║ 💀 EFFECT: CRASH + FREEZE\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/mini_kill': `╔══════════════════════════════════╗\n║ 🔪 MINI KILL ACTIVATED 🔪 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: LIGHTWEIGHT KILLER\n║ 💀 EFFECT: APP FORCE STOP\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/ban_wa': `╔══════════════════════════════════╗\n║ 💀 WHATSAPP BAN SUCCESSFUL 💀 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: PERMANENTLY BANNED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/ban_tg': `╔══════════════════════════════════╗\n║ 💀 TELEGRAM BAN SUCCESSFUL 💀 ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: ACCOUNT RESTRICTED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/ip_hack': `╔══════════════════════════════════╗\n║ 💀 IP TRACE COMPLETED 💀 ║\n╠══════════════════════════════════╣\n║ 🌐 TARGET IP: ${target}\n║ 📍 LOCATION: ${['USA','UK','DE','FR','IN','BR','JP'][Math.floor(Math.random()*7)]}\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/fb_hack': `╔══════════════════════════════════╗\n║ 💀 FACEBOOK HACK COMPLETED 💀 ║\n╠══════════════════════════════════╣\n║ 📘 TARGET: ${target}\n║ 🔑 PASSWORD: ${randomPass()}\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/tiktok_hack': `╔══════════════════════════════════╗\n║ 💀 TIKTOK HACK COMPLETED 💀 ║\n╠══════════════════════════════════╣\n║ 🎵 TARGET: ${target}\n║ 🔑 PASS: ${randomPass()}\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/invis_hell': `╔══════════════════════════════════╗\n║ 👻 INVISIBILITY MODE ACTIVATED ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: WHATSAPP INVISIBLE\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/delay_hell': `╔══════════════════════════════════╗\n║ ⏳ DELAY INJECTION SUCCESSFUL ║\n╠══════════════════════════════════╣\n║ 📱 TARGET: ${target}\n║ 🔥 STATUS: DELAY +5s\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/group_crash': `╔══════════════════════════════════╗\n║ 💥 GROUP CRASH EXECUTED ║\n╠══════════════════════════════════╣\n║ 👥 TARGET GROUP: ${target}\n║ 🔥 STATUS: CRASHED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`,
-    '/clone': `╔══════════════════════════════════╗\n║ 💀 BOT CLONING COMPLETED 💀 ║\n╠══════════════════════════════════╣\n║ 🤖 TARGET BOT: ${target.substring(0,30)}...\n║ 🔄 STATUS: CLONED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`
+    '/droid_virus': fancyReply('DROID VIRUS', target, 'S Y S T E M   I N F E C T E D', 'Remote Access Granted'),
+    '/ios_virus': fancyReply('IOS VIRUS', target, 'K E R N E L   E X P L O I T E D', 'Full Control Obtained'),
+    '/linux_virus': fancyReply('LINUX VIRUS', target, 'R O O T K I T   I N S T A L L E D', 'Persistent Backdoor'),
+    '/pc_kill': fancyReply('PC KILLER', target, 'S Y S T E M   B R I C K E D', 'Permanent Damage'),
+    '/destroy': fancyReply('DESTROYER', target, 'C O M P L E T E   A N N I H I L A T I O N', 'Data Wiped'),
+    '/infect_ill': fancyReply('INFECT ILL', target, 'S P R E A D I N G   M A L W A R E', 'Device Infection'),
+    '/triple_x': fancyReply('TRIPLE X', target, 'A D U L T   F L O O D', 'Notification Spam'),
+    '/ovia_load': fancyReply('OVIA LOAD', target, 'O V E R L O A D   I N J E C T E D', 'CPU 100%'),
+    '/hate_you': fancyReply('HATE YOU', target, 'E M O T I O N A L   D A M A G E', 'Crash + Freeze'),
+    '/mini_kill': fancyReply('MINI KILL', target, 'L I G H T W E I G H T   K I L L E R', 'App Force Stop'),
+    '/ban_wa': fancyReply('WA BAN', target, 'P E R M A N E N T L Y   B A N N E D', 'Account Restricted'),
+    '/ban_tg': fancyReply('TG BAN', target, 'A C C O U N T   R E S T R I C T E D', 'Ban Applied'),
+    '/ip_hack': fancyReply('IP TRACE', target, `L O C A T I O N : ${['USA','UK','GERMANY','FRANCE','JAPAN','BRAZIL'][Math.floor(Math.random()*6)]}`, 'Trace Complete'),
+    '/fb_hack': fancyReply('FB HACK', target, `P A S S : ${randomPass()}`, 'Account Compromised'),
+    '/tiktok_hack': fancyReply('TIKTOK HACK', target, `P A S S : ${randomPass()}`, 'Account Hacked'),
+    '/invis_hell': fancyReply('INVISIBLE', target, 'W H A T S A P P   I N V I S I B L E', 'Mode Activated'),
+    '/delay_hell': fancyReply('DELAY', target, 'D E L A Y   + 5 S E C O N D S', 'Injected'),
+    '/group_crash': fancyReply('GROUP CRASH', target, 'G R O U P   C R A S H E D', 'Success'),
+    '/clone': fancyReply('CLONE BOT', target.substring(0,25), 'B O T   C L O N E D', 'Ready to run')
   };
-  return replies[command] || `╔══════════════════════════════════╗\n║ 💀 ${command.toUpperCase()} EXECUTED 💀 ║\n╠══════════════════════════════════╣\n║ 🎯 TARGET: ${target}\n║ 🔥 STATUS: COMPLETED\n║ 🕒 TIME: ${time}\n╚══════════════════════════════════╝`;
+  return replies[command] || fancyReply(command.toUpperCase(), target, 'C O M P L E T E D', 'Success');
 }
 
 // ================= ADMIN EXECUTES INSTANTLY =================
@@ -143,11 +159,11 @@ async function executeHackInstant(ctx, command, toolName) {
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`⚠️ USAGE: ${command} <target>\nExample: ${command} 192.168.1.1`);
+    return ctx.reply(`┌─[ USAGE ]─┐\n├─ ${command} <target>\n└────────────┘`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   await logToGroup(`⚡ ADMIN | ${toolName} | BY: ${userId} | TARGET: ${targetValue}`);
-  const progressMsg = await ctx.reply(`💀 ${toolName}\n🎯 ${targetValue}\n◐ 0%`);
+  const progressMsg = await ctx.reply(`┌─[ ${toolName} ]─┐\n├─ 🎯 ${targetValue}\n├─ ◐ 0%\n└─────────────┘`);
   await hackerProgress(ctx, progressMsg.message_id, toolName, targetValue);
   await ctx.reply(getHackerReply(command, targetValue));
   await logToGroup(`✅ ADMIN DONE | ${toolName} | ${userId}`);
@@ -160,12 +176,12 @@ async function requestApproval(ctx, command, toolName) {
   const args = ctx.message.text.split(' ').slice(1);
   const target = args.join(' ');
   if (!target && command !== '/clone') {
-    return ctx.reply(`⚠️ USAGE: ${command} <target>`);
+    return ctx.reply(`┌─[ USAGE ]─┐\n├─ ${command} <target>\n└────────────┘`);
   }
   const targetValue = target || 'CLONE_TOKEN';
   const requestId = `${userId}_${Date.now()}`;
   pendingRequests.set(requestId, { userId, username, command, toolName, target: targetValue, chatId: ctx.chat.id });
-  await ctx.reply(`⏳ REQUEST SENT TO ADMINS\n🔧 ${toolName}\n🎯 ${targetValue}\n👑 WAITING...`);
+  await ctx.reply(`┌─[ REQUEST ]─┐\n├─ 🔧 ${toolName}\n├─ 🎯 ${targetValue}\n├─ 👑 WAITING FOR ADMIN\n└──────────────┘`);
   const approveKeyboard = Markup.inlineKeyboard([
     [Markup.button.callback('✅ APPROVE', `approve_${requestId}`), Markup.button.callback('❌ REJECT', `reject_${requestId}`)]
   ]);
@@ -191,7 +207,7 @@ bot.action(/reject_(.+)/, async (ctx) => {
   const request = pendingRequests.get(requestId);
   if (!request) return;
   await ctx.editMessageText(`❌ REJECTED by @${ctx.from.username}\n👤 ${request.userId}\n🛠️ ${request.toolName}`);
-  await bot.telegram.sendMessage(request.chatId, `❌ REQUEST DENIED\n👑 ${OWNER_USERNAME}`);
+  await bot.telegram.sendMessage(request.chatId, `┌─[ DENIED ]─┐\n├─ Request rejected\n├─ 👑 ${OWNER_USERNAME}\n└────────────┘`);
   pendingRequests.delete(requestId);
 });
 
@@ -199,37 +215,31 @@ bot.action(/reject_(.+)/, async (ctx) => {
 const handleCmd = async (ctx, cmd, tool) => {
   if (isAdmin(ctx.from.id)) executeHackInstant(ctx, cmd, tool);
   else if (isPremium(ctx.from.id)) requestApproval(ctx, cmd, tool);
-  else ctx.reply(`🔒 PREMIUM REQUIRED\n📲 ${PREMIUM_BOT}\n👑 ${OWNER_USERNAME}`);
+  else ctx.reply(`┌─[ PREMIUM ]─┐\n├─ 🔒 Required\n├─ 📲 ${PREMIUM_BOT}\n├─ 👑 ${OWNER_USERNAME}\n└────────────┘`);
 };
 
 // ================= REGISTER ALL COMMANDS =================
-bot.command('droid_virus', (ctx) => handleCmd(ctx, '/droid_virus', 'ANDROID_VIRUS'));
+bot.command('droid_virus', (ctx) => handleCmd(ctx, '/droid_virus', 'DROID_VIRUS'));
 bot.command('ios_virus', (ctx) => handleCmd(ctx, '/ios_virus', 'IOS_VIRUS'));
 bot.command('linux_virus', (ctx) => handleCmd(ctx, '/linux_virus', 'LINUX_VIRUS'));
 bot.command('pc_kill', (ctx) => handleCmd(ctx, '/pc_kill', 'PC_KILLER'));
-bot.command('destroy', (ctx) => handleCmd(ctx, '/destroy', 'SYSTEM_DESTROYER'));
+bot.command('destroy', (ctx) => handleCmd(ctx, '/destroy', 'DESTROYER'));
 bot.command('infect_ill', (ctx) => handleCmd(ctx, '/infect_ill', 'INFECT_ILL'));
 bot.command('triple_x', (ctx) => handleCmd(ctx, '/triple_x', 'TRIPLE_X'));
 bot.command('ovia_load', (ctx) => handleCmd(ctx, '/ovia_load', 'OVIA_LOAD'));
 bot.command('hate_you', (ctx) => handleCmd(ctx, '/hate_you', 'HATE_YOU'));
 bot.command('mini_kill', (ctx) => handleCmd(ctx, '/mini_kill', 'MINI_KILL'));
-bot.command('ban_wa', (ctx) => handleCmd(ctx, '/ban_wa', 'WHATSAPP_BAN'));
-bot.command('ban_tg', (ctx) => handleCmd(ctx, '/ban_tg', 'TELEGRAM_BAN'));
+bot.command('ban_wa', (ctx) => handleCmd(ctx, '/ban_wa', 'WA_BAN'));
+bot.command('ban_tg', (ctx) => handleCmd(ctx, '/ban_tg', 'TG_BAN'));
 bot.command('ip_hack', (ctx) => handleCmd(ctx, '/ip_hack', 'IP_TRACE'));
-bot.command('fb_hack', (ctx) => handleCmd(ctx, '/fb_hack', 'FACEBOOK_HACK'));
+bot.command('fb_hack', (ctx) => handleCmd(ctx, '/fb_hack', 'FB_HACK'));
 bot.command('tiktok_hack', (ctx) => handleCmd(ctx, '/tiktok_hack', 'TIKTOK_HACK'));
-bot.command('invis_hell', (ctx) => handleCmd(ctx, '/invis_hell', 'INVISIBILITY_MODE'));
-bot.command('delay_hell', (ctx) => handleCmd(ctx, '/delay_hell', 'DELAY_INJECTION'));
+bot.command('invis_hell', (ctx) => handleCmd(ctx, '/invis_hell', 'INVISIBLE'));
+bot.command('delay_hell', (ctx) => handleCmd(ctx, '/delay_hell', 'DELAY'));
 bot.command('group_crash', (ctx) => handleCmd(ctx, '/group_crash', 'GROUP_CRASH'));
-bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE_BOT'));
-bot.command('menu', async (ctx) => {
-  const keyboard = Markup.inlineKeyboard([
-    [Markup.button.callback('🔮 SHOW MENU', 'show_menu')]
-  ]);
-  await ctx.reply('🔮 C̸l̸i̸c̸k̸ ̸t̸o̸ ̸u̸n̸l̸o̸c̸k̸ ̸t̸h̸e̸ ̸d̸a̸r̸k̸ ̸m̸e̸n̸u̸ 🔮', keyboard);
-});
+bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
-// ================= START COMMAND - FANCY HACKER STYLE =================
+// ================= START COMMAND - COMPACT MENU =================
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   const username = ctx.from.username || 'Unknown';
@@ -248,188 +258,134 @@ bot.start(async (ctx) => {
   }
 
   const keyboard = Markup.inlineKeyboard([
-    [Markup.button.callback('📜 ⚡ V̸I̸E̸W̸ ̸C̸O̸M̸M̸A̸N̸D̸S̸ ⚡', 'show_menu')],
     ...communityRows,
-    [Markup.button.callback('💎 ⚡ C̸H̸E̸C̸K̸ ̸P̸R̸E̸M̸I̸U̸M̸ ⚡', 'check_premium')],
-    [Markup.button.url('👑 ⚡ O̸W̸N̸E̸R̸ ⚡', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
+    [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')],
+    [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
   ]);
 
-  const welcomeMsg = `┌─────────────────────────────────────┐
-│  🔥 *${BOT_NAME}* 🔥  │
+  // COMPACT MENU - NOT HUGE
+  const menuText = `┌─────────────────────────────────────┐
+│ 💀 ${BOT_NAME} 💀 │
 ├─────────────────────────────────────┤
-│  ☠️ *W̸E̸L̸C̸O̸M̸E̸ ̸T̸O̸ ̸T̸H̸E̸ ̸D̸A̸R̸K̸ ̸S̸I̸D̸E̸* ☠️  │
-│  ✨ *${ctx.from.first_name || 'HACKER'}* ✨  │
+│ 🔥 VIRUS CMDS                        │
+│ /droid_virus <ip>  - Android Virus   │
+│ /ios_virus <ip>    - iOS Virus       │
+│ /linux_virus <ip>  - Linux Virus     │
+│ /pc_kill <ip>      - PC Killer       │
+│ /destroy <ip>      - Destroyer       │
 ├─────────────────────────────────────┤
-│  💀 *C̸l̸i̸c̸k̸ ̸b̸e̸l̸o̸w̸ ̸f̸o̸r̸ ̸c̸o̸m̸m̸a̸n̸d̸s̸* 💀  │
+│ 🐛 BUG CMDS                          │
+│ /infect_ill <x>    - Infect Ill      │
+│ /triple_x <x>      - Triple X        │
+│ /ovia_load <x>     - Ovia Load       │
+│ /hate_you <x>      - Hate You        │
+│ /mini_kill <x>     - Mini Kill       │
 ├─────────────────────────────────────┤
-│  ⚡ *P̸o̸w̸e̸r̸e̸d̸ ̸b̸y̸ ̸L̸o̸r̸d̸ ̸S̸a̸t̸a̸n̸u̸s̸* ⚡  │
+│ 💀 SOCIAL HACKS                      │
+│ /ban_wa <num>      - WhatsApp Ban    │
+│ /ban_tg <user>     - Telegram Ban    │
+│ /ip_hack <ip>      - IP Trace        │
+│ /fb_hack <email>   - Facebook Hack   │
+│ /tiktok_hack <user>- TikTok Hack     │
+├─────────────────────────────────────┤
+│ 📱 WA TOOLS                          │
+│ /invis_hell <num>  - Invisible       │
+│ /delay_hell <num>  - Delay Inject    │
+│ /group_crash <gc>  - Group Crash     │
+├─────────────────────────────────────┤
+│ 🤖 OTHER                             │
+│ /clone <token>     - Clone Bot       │
+├─────────────────────────────────────┤
+│ 👑 OWNER ONLY                        │
+│ /addprem /delprem /broadcast         │
+│ /listusers /allusers /addadmin       │
 └─────────────────────────────────────┘`;
 
+  const welcomeMsg = `┌─────────────────────┐
+│ 🔥 WELCOME ${ctx.from.first_name || 'HACKER'} 🔥 │
+│ ☠️ TYPE ANY COMMAND ☠️ │
+└─────────────────────┘`;
+
   try {
-    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, ...keyboard });
+    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown' });
+    await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
   } catch (error) {
-    await ctx.reply(welcomeMsg, keyboard);
+    await ctx.reply(welcomeMsg, { parse_mode: 'Markdown' });
+    await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
   }
 });
 
-// ================= MENU BUTTON - FANCY HACKER STYLE =================
-bot.action('show_menu', async (ctx) => {
-  await ctx.answerCbQuery('📜 Loading dark commands...');
-  
-  const menuText = `┌─────────────────────────────────────────────────────────────┐
-│                    💀 *${BOT_NAME}* 💀                    │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  █▀▀ █   █▀▀ █   █▀▀ █▀█ █▀▀ █   █▀▀ █▀█                  │
-│  █▄▄ █   ██▄ █   ██▄ █▀▄ ██▄ █   ██▄ █▀▄                  │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│  🤖 *V̸I̸R̸U̸S̸ ̸C̸O̸M̸M̸A̸N̸D̸S̸* 🤖                          │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  🔥 /droid_virus <ip>     - Android Virus                  │
-│  🔥 /ios_virus <ip>       - iOS Virus                      │
-│  🔥 /linux_virus <ip>     - Linux Virus                    │
-│  🔥 /pc_kill <ip>         - PC Killer                      │
-│  🔥 /destroy <ip>         - System Destroyer               │
-│                                                             │
-│  🐛 *B̸U̸G̸ ̸C̸O̸M̸M̸A̸N̸D̸S̸* 🐛                          │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  ⚡ /infect_ill <target>   - Infect Ill                    │
-│  ⚡ /triple_x <target>     - Triple X                      │
-│  ⚡ /ovia_load <target>    - Ovia Load                     │
-│  ⚡ /hate_you <target>     - Hate You                      │
-│  ⚡ /mini_kill <target>    - Mini Kill                     │
-│                                                             │
-│  💀 *S̸O̸C̸I̸A̸L̸ ̸H̸A̸C̸K̸S̸* 💀                          │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  📱 /ban_wa <number>       - WhatsApp Ban                  │
-│  📱 /ban_tg <username>     - Telegram Ban                  │
-│  🌐 /ip_hack <ip>          - IP Trace                      │
-│  📘 /fb_hack <email>       - Facebook Hack                 │
-│  🎵 /tiktok_hack <user>    - TikTok Hack                   │
-│                                                             │
-│  📱 *W̸H̸A̸T̸S̸A̸P̸P̸ ̸T̸O̸O̸L̸S̸* 📱                      │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  👻 /invis_hell <phone>    - Invisible Mode                │
-│  ⏳ /delay_hell <phone>    - Delay Injection               │
-│  💥 /group_crash <group>   - Group Crash                   │
-│                                                             │
-│  🤖 *O̸T̸H̸E̸R̸* 🤖                                        │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  🔄 /clone <token>         - Clone Bot                     │
-│                                                             │
-│  👑 *O̸W̸N̸E̸R̸ ̸C̸O̸M̸M̸A̸N̸D̸S̸* 👑                      │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │
-│  ⭐ /addprem <id>          - Add Premium User              │
-│  ❌ /delprem <id>          - Remove Premium User           │
-│  📢 /broadcast <msg>       - Broadcast Message             │
-│  📋 /listusers             - List Premium Users            │
-│  👥 /allusers              - List All Users                │
-│  👑 /addadmin <id>         - Add Admin                     │
-│  ❌ /deladmin <id>         - Remove Admin                  │
-│                                                             │
-├─────────────────────────────────────────────────────────────┤
-│              📢 *J̸O̸I̸N̸ ̸O̸U̸R̸ ̸C̸O̸M̸M̸U̸N̸I̸T̸Y̸* 📢              │
-└─────────────────────────────────────────────────────────────┘`;
-
-  const menuKeyboard = Markup.inlineKeyboard([
-    [Markup.button.url('👥 MAIN GROUP', 'https://t.me/lordsatanusmaingc'), Markup.button.url('📢 MAIN CHANNEL', 'https://t.me/lordsatanusmainchannel')],
-    [Markup.button.url('🔥 RYOMEN TECH', 'https://t.me/RyomenTechtheuprising'), Markup.button.url('💀 FYT_13', 'https://t.me/FYT_13')],
-    [Markup.button.url('💰 EARNING BIT SATAN', 'https://t.me/earningbitsatan664'), Markup.button.url('⚡ HELL GUARD', 'https://t.me/hellgaurd666')],
-    [Markup.button.callback('💎 CHECK PREMIUM', 'check_premium')]
-  ]);
-
-  await ctx.reply(menuText, menuKeyboard);
-});
-
-// ================= PREMIUM CHECK - FANCY STYLE =================
+// ================= PREMIUM CHECK =================
 bot.action('check_premium', async (ctx) => {
-  await ctx.answerCbQuery('💎 Checking dark privileges...');
+  await ctx.answerCbQuery('💎 Checking...');
   const userId = ctx.from.id;
   if (isPremium(userId)) {
-    await ctx.reply(`┌─────────────────────────────────┐
-│       ⭐ *P̸R̸E̸M̸I̸U̸M̸ ̸U̸S̸E̸R̸* ⭐        │
-├─────────────────────────────────┤
-│  👤 ID: ${userId}                │
-│  🔥 All tools unlocked          │
-│  💀 Welcome to the elite club   │
-└─────────────────────────────────┘`, { parse_mode: 'Markdown' });
+    await ctx.reply(`┌─[ PREMIUM USER ]─┐\n├─ 👤 ID: ${userId}\n├─ 🔥 ALL TOOLS\n└─────────────────┘`, { parse_mode: 'Markdown' });
   } else {
-    await ctx.reply(`┌─────────────────────────────────┐
-│       🔴 *F̸R̸E̸E̸ ̸U̸S̸E̸R̸* 🔴        │
-├─────────────────────────────────┤
-│  💎 Upgrade: ${PREMIUM_BOT}      │
-│  👑 Owner: ${OWNER_USERNAME}     │
-│  🔓 Unlock all dark powers      │
-└─────────────────────────────────┘`, { parse_mode: 'Markdown' });
+    await ctx.reply(`┌─[ FREE USER ]─┐\n├─ 💎 ${PREMIUM_BOT}\n├─ 👑 ${OWNER_USERNAME}\n└───────────────┘`, { parse_mode: 'Markdown' });
   }
 });
 
 // ================= ADMIN COMMANDS =================
 bot.command('addadmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('⚠️ *U̸s̸a̸g̸e̸:̸ /addadmin <id>*', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /addadmin <id>\n└────────────┘');
   adminIds.add(uid);
   saveAdmins();
-  ctx.reply(`✅ *A̸d̸m̸i̸n̸ ̸a̸d̸d̸e̸d̸:̸ ${uid}*`, { parse_mode: 'Markdown' });
+  ctx.reply(`┌─[ ADDED ]─┐\n├─ Admin: ${uid}\n└────────────┘`);
 });
 
 bot.command('deladmin', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('⚠️ *U̸s̸a̸g̸e̸:̸ /deladmin <id>*', { parse_mode: 'Markdown' });
-  if (uid === OWNER_ID) return ctx.reply('❌ *C̸a̸n̸n̸o̸t̸ ̸r̸e̸m̸o̸v̸e̸ ̸o̸w̸n̸e̸r̸*', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /deladmin <id>\n└────────────┘');
+  if (uid === OWNER_ID) return ctx.reply('┌─[ ERROR ]─┐\n├─ Cannot remove owner\n└────────────┘');
   adminIds.delete(uid);
   saveAdmins();
-  ctx.reply(`❌ *A̸d̸m̸i̸n̸ ̸r̸e̸m̸o̸v̸e̸d̸:̸ ${uid}*`, { parse_mode: 'Markdown' });
+  ctx.reply(`┌─[ REMOVED ]─┐\n├─ Admin: ${uid}\n└──────────────┘`);
 });
 
 bot.command('addprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('⚠️ *U̸s̸a̸g̸e̸:̸ /addprem <id>*', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /addprem <id>\n└────────────┘');
   premiumUsers.add(uid);
   savePremiumUsers();
-  ctx.reply(`✅ *P̸r̸e̸m̸i̸u̸m̸ ̸a̸d̸d̸e̸d̸:̸ ${uid}*`, { parse_mode: 'Markdown' });
+  ctx.reply(`┌─[ ADDED ]─┐\n├─ Premium: ${uid}\n└────────────┘`);
 });
 
 bot.command('delprem', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
   const uid = parseInt(ctx.message.text.split(' ')[1]);
-  if (!uid) return ctx.reply('⚠️ *U̸s̸a̸g̸e̸:̸ /delprem <id>*', { parse_mode: 'Markdown' });
+  if (!uid) return ctx.reply('┌─[ USAGE ]─┐\n├─ /delprem <id>\n└────────────┘');
   premiumUsers.delete(uid);
   savePremiumUsers();
-  ctx.reply(`❌ *P̸r̸e̸m̸i̸u̸m̸ ̸r̸e̸m̸o̸v̸e̸d̸:̸ ${uid}*`, { parse_mode: 'Markdown' });
+  ctx.reply(`┌─[ REMOVED ]─┐\n├─ Premium: ${uid}\n└──────────────┘`);
 });
 
 bot.command('broadcast', async (ctx) => {
-  if (!isAdmin(ctx.from.id)) return ctx.reply('🔒 *A̸D̸M̸I̸N̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
+  if (!isAdmin(ctx.from.id)) return ctx.reply('┌─[ DENIED ]─┐\n├─ Admin only\n└────────────┘');
   const msg = ctx.message.text.split(' ').slice(1).join(' ');
-  if (!msg) return ctx.reply('⚠️ *U̸s̸a̸g̸e̸:̸ /broadcast <message>*', { parse_mode: 'Markdown' });
+  if (!msg) return ctx.reply('┌─[ USAGE ]─┐\n├─ /broadcast <msg>\n└────────────┘');
   let sent = 0;
   for (const uid of allUsers) {
-    try { await bot.telegram.sendMessage(uid, `📢 *BROADCAST*\n\n${msg}`, { parse_mode: 'Markdown' }); sent++; } catch(e) {}
+    try { await bot.telegram.sendMessage(uid, `📢 BROADCAST\n\n${msg}`); sent++; } catch(e) {}
     await new Promise(r => setTimeout(r, 50));
   }
-  ctx.reply(`✅ *S̸e̸n̸t̸ ̸t̸o̸ ${sent} u̸s̸e̸r̸s̸*`, { parse_mode: 'Markdown' });
+  ctx.reply(`┌─[ SENT ]─┐\n├─ To: ${sent} users\n└────────────┘`);
 });
 
 bot.command('listusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
-  if (premiumUsers.size === 0) return ctx.reply('📭 *N̸o̸ ̸p̸r̸e̸m̸i̸u̸m̸ ̸u̸s̸e̸r̸s̸*', { parse_mode: 'Markdown' });
-  ctx.reply(`👑 *P̸r̸e̸m̸i̸u̸m̸ ̸U̸s̸e̸r̸s̸:*\n${[...premiumUsers].join('\n')}`, { parse_mode: 'Markdown' });
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (premiumUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No premium users\n└────────────┘');
+  ctx.reply(`┌─[ PREMIUM USERS ]─┐\n├─ ${[...premiumUsers].join('\n├─ ')}\n└───────────────────┘`);
 });
 
 bot.command('allusers', async (ctx) => {
-  if (ctx.from.id !== OWNER_ID) return ctx.reply('🔒 *O̸W̸N̸E̸R̸ ̸O̸N̸L̸Y̸*', { parse_mode: 'Markdown' });
-  if (allUsers.size === 0) return ctx.reply('📭 *N̸o̸ ̸u̸s̸e̸r̸s̸*', { parse_mode: 'Markdown' });
-  ctx.reply(`👥 *A̸l̸l̸ ̸U̸s̸e̸r̸s̸:*\n${[...allUsers].join('\n')}`, { parse_mode: 'Markdown' });
-});
-
-// ================= GLOBAL ERROR HANDLING =================
-bot.catch((err, ctx) => {
-  console.error('Unhandled error while processing', ctx.update, err);
+  if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
+  if (allUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No users\n└────────────┘');
+  ctx.reply(`┌─[ ALL USERS ]─┐\n├─ ${[...allUsers].join('\n├─ ')}\n└───────────────┘`);
 });
 
 // ================= LAUNCH =================
