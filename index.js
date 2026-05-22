@@ -358,7 +358,7 @@ bot.action('show_menu', async (ctx) => {
 │ 💀 <b>${BOT_NAME}</b> 💀 │
 ├─────────────────────────────────┤
 │ 🔥 VIRUS                        │
-│</blockquote> /droid_virus &lt;ip&gt;  - Android </blockquote>   │
+│ /droid_virus &lt;ip&gt;  - Android    │
 │ /ios_virus &lt;ip&gt;    - iOS        │
 │ /linux_virus &lt;ip&gt;  - Linux      │
 │ /pc_kill &lt;ip&gt;      - PC Killer  │
