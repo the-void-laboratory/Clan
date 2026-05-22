@@ -35,12 +35,12 @@ const PREMIUM_BOT = process.env.PREMIUM_BOT;
 
 // ================= ALL COMMUNITY BUTTONS =================
 const COMMUNITY_BUTTONS = [
-  { name: "👥 MAIN GROUP", url: "https://t.me/lordsatanusmaingc" },
-  { name: "📢 MAIN CHANNEL", url: "https://t.me/lordsatanusmainchannel" },
-  { name: "🔥 RYOMEN TECH", url: "https://t.me/RyomenTechtheuprising" },
-  { name: "💀 FYT_13", url: "https://t.me/FYT_13" },
-  { name: "💰 EARNING BIT SATAN", url: "https://t.me/earningbitsatan664" },
-  { name: "⚡ HELL GUARD", url: "https://t.me/hellgaurd666" }
+  { name: "👥 MAIN GROUP", url: "[https://t.me/lordsatanusmaingc](https://t.me/lordsatanusmaingc)" },
+  { name: "📢 MAIN CHANNEL", url: "[https://t.me/lordsatanusmainchannel](https://t.me/lordsatanusmainchannel)" },
+  { name: "🔥 RYOMEN TECH", url: "[https://t.me/RyomenTechtheuprising](https://t.me/RyomenTechtheuprising)" },
+  { name: "💀 FYT_13", url: "[https://t.me/FYT_13](https://t.me/FYT_13)" },
+  { name: "💰 EARNING BIT SATAN", url: "[https://t.me/earningbitsatan664](https://t.me/earningbitsatan664)" },
+  { name: "⚡ HELL GUARD", url: "[https://t.me/hellgaurd666](https://t.me/hellgaurd666)" }
 ];
 
 // ================= STORAGE =================
@@ -239,7 +239,7 @@ bot.command('delay_hell', (ctx) => handleCmd(ctx, '/delay_hell', 'DELAY'));
 bot.command('group_crash', (ctx) => handleCmd(ctx, '/group_crash', 'GROUP_CRASH'));
 bot.command('clone', (ctx) => handleCmd(ctx, '/clone', 'CLONE'));
 
-// ================= START COMMAND - COMPACT MENU =================
+// ================= START COMMAND - BEAUTIFIED MENU =================
 bot.start(async (ctx) => {
   const userId = ctx.from.id;
   const username = ctx.from.username || 'Unknown';
@@ -250,7 +250,7 @@ bot.start(async (ctx) => {
     await logToGroup(`🆕 NEW USER | ${userId} | @${username}`);
   }
 
-  // Build community buttons
+  // Build community buttons (2 columns)
   const communityRows = [];
   for (let i = 0; i < COMMUNITY_BUTTONS.length; i += 2) {
     const row = COMMUNITY_BUTTONS.slice(i, i+2).map(btn => Markup.button.url(btn.name, btn.url));
@@ -263,53 +263,56 @@ bot.start(async (ctx) => {
     [Markup.button.url('👑 OWNER', `https://t.me/${OWNER_USERNAME.replace('@', '')}`)]
   ]);
 
-  // COMPACT MENU - NOT HUGE
-  const menuText = `┌─────────────────────────────────────┐
-│ 💀 ${BOT_NAME} 💀 │
-├─────────────────────────────────────┤
-│ 🔥 VIRUS CMDS                        │
-│ /droid_virus <ip>  - Android Virus   │
-│ /ios_virus <ip>    - iOS Virus       │
-│ /linux_virus <ip>  - Linux Virus     │
-│ /pc_kill <ip>      - PC Killer       │
-│ /destroy <ip>      - Destroyer       │
-├─────────────────────────────────────┤
-│ 🐛 BUG CMDS                          │
-│ /infect_ill <x>    - Infect Ill      │
-│ /triple_x <x>      - Triple X        │
-│ /ovia_load <x>     - Ovia Load       │
-│ /hate_you <x>      - Hate You        │
-│ /mini_kill <x>     - Mini Kill       │
-├─────────────────────────────────────┤
-│ 💀 SOCIAL HACKS                      │
-│ /ban_wa <num>      - WhatsApp Ban    │
-│ /ban_tg <user>     - Telegram Ban    │
-│ /ip_hack <ip>      - IP Trace        │
-│ /fb_hack <email>   - Facebook Hack   │
-│ /tiktok_hack <user>- TikTok Hack     │
-├─────────────────────────────────────┤
-│ 📱 WA TOOLS                          │
-│ /invis_hell <num>  - Invisible       │
-│ /delay_hell <num>  - Delay Inject    │
-│ /group_crash <gc>  - Group Crash     │
-├─────────────────────────────────────┤
-│ 🤖 OTHER                             │
-│ /clone <token>     - Clone Bot       │
-├─────────────────────────────────────┤
-│ 👑 OWNER ONLY                        │
-│ /addprem /delprem /broadcast         │
-│ /listusers /allusers /addadmin       │
-└─────────────────────────────────────┘`;
+  // BEAUTIFIED HACKER MENU USING MARKDOWN CODEBLOCK
+  const menuText = 
+`⚡ *${BOT_NAME ? BOT_NAME.toUpperCase() : 'SYSTEM'} PANEL* ⚡
+` + '```' + `
+====== 🔥 VIRUS COMMANDS ======
+/droid_virus <ip>  -> Android Virus
+/ios_virus <ip>    -> iOS Virus
+/linux_virus <ip>  -> Linux Virus
+/pc_kill <ip>      -> PC Killer
+/destroy <ip>      -> Destroyer
 
-  const welcomeMsg = `┌─────────────────────┐
-│ 🔥 WELCOME ${ctx.from.first_name || 'HACKER'} 🔥 │
-│ ☠️ TYPE ANY COMMAND ☠️ │
-└─────────────────────┘`;
+======= 🐛 BUG EXPLOITS =======
+/infect_ill <val>  -> Infect Ill
+/triple_x <val>    -> Triple X
+/ovia_load <val>   -> Ovia Load
+/hate_you <val>    -> Hate You
+/mini_kill <val>   -> Mini Kill
+
+====== 💀 SOCIAL EXPLOITS =====
+/ban_wa <num>      -> WhatsApp Ban
+/ban_tg <user>     -> Telegram Ban
+/ip_hack <ip>      -> IP Trace
+/fb_hack <email>   -> Facebook Hack
+/tiktok_hack <usr> -> TikTok Hack
+
+======= 📱 WHATSAPP TOOLS =====
+/invis_hell <num>  -> Invisible
+/delay_hell <num>  -> Delay Inject
+/group_crash <gc>  -> Group Crash
+
+========= 🤖 UTILITIES ========
+/clone <token>     -> Clone Bot
+
+======= 👑 OWNER PRIVS ========
+/addprem  | /delprem  | /broadcast
+/addadmin | /deladmin | /listusers
+` + '```' + `
+*⚠️ SYSTEM STATUS: ONLINE & READY*`;
+
+  const welcomeMsg = `*┌────────────────────────┐*\n*🔥 WELCOME ${ctx.from.first_name ? ctx.from.first_name.toUpperCase() : 'HACKER'} 🔥*\n*☠️ INITIALIZING INTERFACE... ☠️*\n*└────────────────────────┘*`;
 
   try {
-    await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown' });
+    if (START_IMAGE) {
+      await ctx.replyWithPhoto(START_IMAGE, { caption: welcomeMsg, parse_mode: 'Markdown' });
+    } else {
+      await ctx.reply(welcomeMsg, { parse_mode: 'Markdown' });
+    }
     await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
   } catch (error) {
+    // Universal Fallback if photo engine or text encounters issues
     await ctx.reply(welcomeMsg, { parse_mode: 'Markdown' });
     await ctx.reply(menuText, { parse_mode: 'Markdown', ...keyboard });
   }
@@ -384,13 +387,13 @@ bot.command('listusers', async (ctx) => {
 
 bot.command('allusers', async (ctx) => {
   if (ctx.from.id !== OWNER_ID) return ctx.reply('┌─[ DENIED ]─┐\n├─ Owner only\n└────────────┘');
-  if (allUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No users\n└────────────┘');
+  if (allUsers.size === 0) return ctx.reply('┌─[ EMPTY ]─┐\n├─ No users\n└───────────────┘');
   ctx.reply(`┌─[ ALL USERS ]─┐\n├─ ${[...allUsers].join('\n├─ ')}\n└───────────────┘`);
 });
 
 // ================= LAUNCH =================
 bot.launch().then(() => {
-  console.log(`☠️ ${BOT_NAME} RUNNING ☠️`);
+  console.log(`☠️ ${BOT_NAME || 'BOT'} RUNNING ☠️`);
   console.log(`✅ Owner: ${OWNER_USERNAME}`);
   console.log(`✅ Premium: ${premiumUsers.size} | Total: ${allUsers.size}`);
 }).catch(err => console.error('Launch error:', err));
